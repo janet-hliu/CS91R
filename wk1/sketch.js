@@ -21,13 +21,13 @@ function setup() {
           document.body.innerHTML+= `${index}: ${device.name} <br>`;
         });
       }
-  
-      const mySynth = WebMidi.inputs[0];
 
       // jeff's piano shows all info coming from channel 16: display e.message.channel
+      const mySynth = WebMidi.inputs[0].channels[16];
+
       mySynth.addListener("noteon", e => {
         // console.log(e.note.identifier);
-        document.body.innerHTML+= `${e.note.identifier} <br>`;
+        document.body.innerHTML+= `${e.note.identifier}, ${e.note.attack} <br>`;
       })
     }
 }
