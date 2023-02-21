@@ -51,7 +51,7 @@ function onEnabled() {
 
   mySynth.addListener("noteon", e => {
     // e.note.number is a number from 0 - 127, representing full MIDI range
-    var ascii_rep = Stsr
+    var ascii_rep = String.fromCharCode(e.note.number)
 
     ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
     live_sequence = live_sequence.concat(e.note.identifier);
