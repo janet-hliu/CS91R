@@ -1,5 +1,7 @@
 // make a datastructure to keep track of midi notes
 var live_sequence = ""
+var ascii_live_sequence = ""
+var lookup = {}
 
 function setup() {
   // setup to enable WebMidi library: https://webmidijs.org/docs/
@@ -29,14 +31,12 @@ function setup() {
       const mySynth = WebMidi.inputs[0].channels[16];
 
       mySynth.addListener("noteon", e => {
-        var subsequence = e.note.identifier;
-        if (subsequence.length == 2) {
-          subsequence = subsequence[0] + 'n' + subsequence[1]
-        }
+        // e.note.number is a number from 0 - 127, representing full MIDI range
+        var ascii_rep = String.fromCharCode(e.note.number)
 
-        live_sequence = live_sequence.concat(subsequence);
-        console.log(e.note.identifier);
-        console.log(live_sequence);
+        ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
+        live_sequence = live_sequence.concat(e.note.identifier);
+        // console.log(ascii_live_sequence);
         // document.body.innerHTML+= `${e.note.identifier}, ${e.note.attack} <br>`;
         document.getElementById("live_sequence").innerHTML = live_sequence;
       })
@@ -45,8 +45,8 @@ function setup() {
 
 function draw() {
   // put drawing code here
-  var sequence = document.getElementById('live_sequence').textContent;
   var canvas = document.getElementById('output');
-  var renderer = new PatternRenderer(canvas, sequence);
+  console.log(ascii_live_sequence)
+  var renderer = new PatternRenderer(canvas, ascii_live_sequence);
   renderer.render(0);
 }

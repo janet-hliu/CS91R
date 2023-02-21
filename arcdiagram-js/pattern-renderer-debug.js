@@ -17,7 +17,7 @@ PatternRenderer.prototype.render = function(minPatternLength) {
 	}
 	g.fillStyle = '#fff';
 	g.fillRect(0, 0, w, h);
-	console.log('baseH', baseH, 'h', h);
+	// console.log('baseH', baseH, 'h', h);
 
 	// Draw colored indicators for sequence values, if there are sufficiently few. This is the "debug" part.
 	if (len < s) {

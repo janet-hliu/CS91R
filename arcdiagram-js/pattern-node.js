@@ -15,7 +15,7 @@ PatternNode.PATTERN_START = '<pattern start>';
 
 PatternNode.makeTree = function(sequence) {
 	var root = new PatternNode(sequence, PatternNode.PATTERN_START);
-	for (var i = 0; i < sequence.length; i += 3) {
+	for (var i = 0; i < sequence.length; i++) {
 		root.addPatternStartPosition(i);
 	}
 	root.extend();
@@ -92,7 +92,7 @@ PatternNode.prototype.item = function(i) {
 
 PatternNode.prototype.extend = function() {
   var n = this.countStartPositions();
-  console.log(n)
+  // console.log(n)
   var length = this.getLength();
 
   // Make sure there's more than one pattern:
