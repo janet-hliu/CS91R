@@ -6,6 +6,9 @@ var lookup = {}
 var input;
 var button;
 
+// Returns a Promise that resolves after "ms" Milliseconds
+const timer = ms => new Promise(res => setTimeout(res, ms))
+
 function setup() {
 
   input = createInput();
@@ -54,19 +57,34 @@ function setup() {
     
 }
 
-function updateSeq() {
-  live_sequence = input.value()
-  document.getElementById("live_sequence").innerHTML = live_sequence;
-  for (i = 0; i < live_sequence.length; i += 3) {
-    
-    
+async function updateSeq() {
+  live_sequence = ""
+  ascii_live_sequence = ""
+  let input_sequence = input.value()
+
+  // iterate through input sequence, find midi note name and number
+  for (i = 0; i < input_sequence.length; i += 3) {
+    var curr_note = ""
+    if (input_sequence[i+1] == "n") {
+      curr_note = input_sequence[i] + input_sequence[i+2]
+    } else {
+      curr_note = input_sequence.substring(i, i+3)
+    }
+    console.log(curr_note);
+    let midi_num = Utilities.guessNoteNumber(curr_note);
+    var ascii_rep = String.fromCharCode(midi_num);
+
+    ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
+    live_sequence = live_sequence.concat(curr_note);
+
+    await timer(400);
   }
 }
 
 function draw() {
   // put drawing code here
   var canvas = document.getElementById('output');
-  console.log(ascii_live_sequence)
+  console.log(ascii_live_sequence);
   var renderer = new PatternRenderer(canvas, ascii_live_sequence);
   renderer.render(0);
 }
