@@ -124,7 +124,6 @@ function draw() {
   hist = newHist;
   lastMatch = newLastMatch;
 
-
   console.log(hist);
   // console.log(lastMatch)
   //Cn3Dn3En3Gn5Gn5Cn3Dn3En3

@@ -45,7 +45,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist) {
 
 		if (hist.hasOwnProperty(match)) {
 			if (hist[match] < 100) {
-			newHist[match] = hist[match] + 1; //percentage of arc drawn
+			newHist[match] = hist[match] + 5; //percentage of arc drawn
 			} else {
 			newHist[match] = 100;
 			}
@@ -63,9 +63,9 @@ PatternRenderer.prototype.render = function(minPatternLength, hist) {
 		var r2 = ox - x2;
 		g.beginPath();
 		g.moveTo(x1, y);
-		g.arc(ox, y, r1, -Math.PI, 0, false);
+		g.arc(ox, y, r1, -Math.PI/100 * newHist[match], 0, false);
 		g.moveTo(x3, y);
-		g.arc(ox, y, r2, 0, -Math.PI, true);
+		g.arc(ox, y, r2, 0, -Math.PI/100 * newHist[match], true);
 	  if (!this.opt_base) {
 	  	g.fillStyle = 'rgba(0,51,153,.2)';
 	  } else {
