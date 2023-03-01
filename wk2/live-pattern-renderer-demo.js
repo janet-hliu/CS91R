@@ -4,6 +4,7 @@ var ascii_live_sequence = ""
 var lookup = {}
 var hist = {}; //interval to arc percentage
 var lastMatch;
+var masterScale = 0;
 
 var input;
 var manualButton;
@@ -78,6 +79,7 @@ function onEnabled() {
 }
 
 async function updateSeq() {
+  masterScale = 0;
   getOrCreateContext()
   live_sequence = ""
   ascii_live_sequence = ""
@@ -114,7 +116,7 @@ function draw() {
 
   var newHist;
   var newLastMatch;
-  [newHist, newLastMatch] = renderer.render(0, hist, lastMatch);
+  [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
   //compare newHist and hist
 
   // if (typeof lastMatch !== 'undefined' && !newHist.hasOwnProperty(lastMatch)) {

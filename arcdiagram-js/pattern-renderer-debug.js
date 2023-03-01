@@ -4,7 +4,7 @@ var PatternRenderer = function(canvas, sequence, opt_base) {
 	this.opt_base = opt_base;
 };
 
-PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch) {
+PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, masterScale) {
 	var patternFinder = new PatternFinder(this.sequence, minPatternLength);
 	var w = this.canvas.width;
 	var h = this.canvas.height;
@@ -12,8 +12,13 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch) {
 	var s = Math.min(w, 2 * h);
 	var baseH = s / 2;
 	var len = this.sequence.length;
+
+	if (masterScale < len) {
+		masterScale += 0.1;
+	}
+
 	function scale(n) {
-		return s * n / len;
+		return s * n / masterScale;
 	}
 	g.fillStyle = '#fff';
 	g.fillRect(0, 0, w, h);
@@ -86,7 +91,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch) {
 		g.fill();
 	}
 
-	return [newHist, newLastMatch];
+	return [newHist, newLastMatch, masterScale];
 };
 
 PatternRenderer.makeDisplay = function(
