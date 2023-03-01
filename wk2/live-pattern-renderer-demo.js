@@ -6,12 +6,13 @@ var lookup = {}
 var input;
 var manualButton;
 var liveButton;
+var audioContext;
+var oscillator;
 
 // Returns a Promise that resolves after "ms" Milliseconds
 const timer = ms => new Promise(res => setTimeout(res, ms))
 
 function setup() {
-
   input = createInput();
   input.position(20, 65);
   manualButton = createButton('submit');
@@ -19,19 +20,32 @@ function setup() {
   manualButton.mousePressed(updateSeq);
   liveButton = createButton('live');
   liveButton.position(manualButton.x  + manualButton.width, 65);
+  // setup to enable WebMidi library: https://webmidijs.org/docs/
   liveButton.mousePressed(function() {
     WebMidi
     .enable()
     .then(onEnabled)
     .catch(err => alert(err));
   })
+}
 
-  // // setup to enable WebMidi library: https://webmidijs.org/docs/
+// Function to get or create an audio context
+function getOrCreateContext() {
+  if (!audioContext) {
+    audioContext = new AudioContext();
+    oscillator = audioContext.createOscillator();
+    oscillator.connect(audioContext.destination);
+    oscillator.start();
+    // audioContext.suspend();
+  } else {
+    audioContext.resume();
+  }
+  return audioContext;
+  
 }
 
 // Function triggered when WEBMIDI.js is ready
 function onEnabled() {
-  
   // Inputs
   WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name));
   // Outputs
@@ -62,6 +76,7 @@ function onEnabled() {
 }
 
 async function updateSeq() {
+  getOrCreateContext()
   live_sequence = ""
   ascii_live_sequence = ""
   let input_sequence = input.value()
@@ -77,12 +92,16 @@ async function updateSeq() {
     console.log(curr_note);
     let midi_num = Utilities.guessNoteNumber(curr_note);
     var ascii_rep = String.fromCharCode(midi_num);
+    var freq = Math.pow(2, (midi_num-69)/12)*440;
+    oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
 
     ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
     live_sequence = live_sequence.concat(curr_note);
 
     await timer(400);
+    console.log("suspending")
   }
+  audioContext.suspend()
 }
 
 function draw() {
