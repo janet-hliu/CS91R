@@ -14,7 +14,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 	var len = this.sequence.length;
 
 	if (masterScale < len) {
-		masterScale += 0.1;
+		masterScale += 0.04;
 	}
 
 	function scale(n) {
