@@ -114,17 +114,17 @@ function draw() {
 
   var newHist;
   var newLastMatch;
-  [newHist, newLastMatch] = renderer.render(0, hist);
+  [newHist, newLastMatch] = renderer.render(0, hist, lastMatch);
   //compare newHist and hist
 
-  if (typeof lastMatch !== 'undefined' && !newHist.hasOwnProperty(lastMatch)) {
-    delete hist.lastMatch
-  }
+  // if (typeof lastMatch !== 'undefined' && !newHist.hasOwnProperty(lastMatch)) {
+  //   delete hist.lastMatch
+  // }
 
   hist = newHist;
   lastMatch = newLastMatch;
 
-  console.log(hist);
+  //console.log(hist);
   // console.log(lastMatch)
   //Cn3Dn3En3Gn5Gn5Cn3Dn3En3
 }

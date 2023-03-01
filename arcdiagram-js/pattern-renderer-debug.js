@@ -4,7 +4,7 @@ var PatternRenderer = function(canvas, sequence, opt_base) {
 	this.opt_base = opt_base;
 };
 
-PatternRenderer.prototype.render = function(minPatternLength, hist) {
+PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch) {
 	var patternFinder = new PatternFinder(this.sequence, minPatternLength);
 	var w = this.canvas.width;
 	var h = this.canvas.height;
@@ -36,19 +36,23 @@ PatternRenderer.prototype.render = function(minPatternLength, hist) {
 		}
 	}
 
-	var lastMatch;
+	var newLastMatch;
 	var newHist = {};
 
 	while (null != (match = patternFinder.nextMatch())) {
 		//console.log(match);
-		lastMatch = match;
+		newLastMatch = match;
 
 		if (hist.hasOwnProperty(match)) {
 			if (hist[match] < 100) {
-			newHist[match] = hist[match] + 5; //percentage of arc drawn
+			newHist[match] = hist[match] + 2; //percentage of arc drawn
 			} else {
 			newHist[match] = 100;
 			}
+		} else if (typeof lastMatch !== 'undefined' && 
+				match[0].start == lastMatch[0].start && 
+				match[1].start == lastMatch[1].start) {// if both start intervals are the same
+			newHist[match] = hist[lastMatch] + 2;
 		} else {
 			newHist[match] = 0;
 		}
@@ -82,7 +86,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist) {
 		g.fill();
 	}
 
-	return [newHist, lastMatch];
+	return [newHist, newLastMatch];
 };
 
 PatternRenderer.makeDisplay = function(
