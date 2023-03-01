@@ -2,6 +2,8 @@
 var live_sequence = ""
 var ascii_live_sequence = ""
 var lookup = {}
+var hist = {}; //interval to arc percentage
+var lastMatch;
 
 var input;
 var manualButton;
@@ -109,5 +111,21 @@ function draw() {
   var canvas = document.getElementById('output');
   console.log(ascii_live_sequence);
   var renderer = new PatternRenderer(canvas, ascii_live_sequence);
-  renderer.render(0);
+
+  var newHist;
+  var newLastMatch;
+  [newHist, newLastMatch] = renderer.render(0, hist);
+  //compare newHist and hist
+
+  if (typeof lastMatch !== 'undefined' && !newHist.hasOwnProperty(lastMatch)) {
+    delete hist.lastMatch
+  }
+
+  hist = newHist;
+  lastMatch = newLastMatch;
+
+
+  console.log(hist);
+  // console.log(lastMatch)
+  //Cn3Dn3En3Gn5Gn5Cn3Dn3En3
 }
