@@ -2,9 +2,9 @@
 var live_sequence = ""
 var ascii_live_sequence = ""
 var lookup = {}
-var hist = {}; //interval to arc percentage
+var hist = {}; // match interval: (arc percentage, arc radius percentage)
 var lastMatch;
-var masterScale = 0;
+var masterScale = 5;
 
 var input;
 var manualButton;
@@ -39,7 +39,6 @@ function getOrCreateContext() {
     oscillator = audioContext.createOscillator();
     oscillator.connect(audioContext.destination);
     oscillator.start();
-    // audioContext.suspend();
   } else {
     audioContext.resume();
   }
@@ -72,14 +71,13 @@ function onEnabled() {
 
     ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
     live_sequence = live_sequence.concat(e.note.identifier);
-    // console.log(ascii_live_sequence);
     // document.body.innerHTML+= `${e.note.identifier}, ${e.note.attack} <br>`;
     document.getElementById("live_sequence").innerHTML = live_sequence;
   })
 }
 
 async function updateSeq() {
-  masterScale = 0;
+  masterScale = 5;
   getOrCreateContext()
   live_sequence = ""
   ascii_live_sequence = ""
@@ -93,7 +91,6 @@ async function updateSeq() {
     } else {
       curr_note = input_sequence.substring(i, i+3)
     }
-    console.log(curr_note);
     let midi_num = Utilities.guessNoteNumber(curr_note);
     var ascii_rep = String.fromCharCode(midi_num);
     var freq = Math.pow(2, (midi_num-69)/12)*440;
@@ -103,7 +100,6 @@ async function updateSeq() {
     live_sequence = live_sequence.concat(curr_note);
 
     await timer(400);
-    console.log("suspending")
   }
   audioContext.suspend()
 }
@@ -111,22 +107,15 @@ async function updateSeq() {
 function draw() {
   // put drawing code here
   var canvas = document.getElementById('output');
-  console.log(ascii_live_sequence);
+  console.log(ascii_live_sequence)
   var renderer = new PatternRenderer(canvas, ascii_live_sequence);
 
   var newHist;
   var newLastMatch;
   [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
-  //compare newHist and hist
-
-  // if (typeof lastMatch !== 'undefined' && !newHist.hasOwnProperty(lastMatch)) {
-  //   delete hist.lastMatch
-  // }
 
   hist = newHist;
   lastMatch = newLastMatch;
 
-  //console.log(hist);
-  // console.log(lastMatch)
-  //Cn3Dn3En3Gn5Gn5Cn3Dn3En3
+  // Cn3Dn3En3Gn3Gn3Cn3Dn3En3
 }
