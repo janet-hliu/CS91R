@@ -4,7 +4,7 @@ var PatternRenderer = function(canvas, sequence, opt_base) {
 	this.opt_base = opt_base;
 };
 
-PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, masterScale) {
+PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, masterScale, histR1, histR2) {
 	var patternFinder = new PatternFinder(this.sequence, minPatternLength);
 	var w = this.canvas.width;
 	var h = this.canvas.height;
@@ -14,7 +14,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 	var len = this.sequence.length;
 
 	if (masterScale < len) {
-		masterScale += 0.04;
+		masterScale += 0.08;
 	}
 
 	function scale(n) {
@@ -23,8 +23,6 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 
 	g.fillStyle = '#fff';
 	g.fillRect(0, 0, w, h);
-	console.log("sequence: "+this.sequence)
-	console.log(len)
 
 	// Draw colored indicators for sequence values, if there are sufficiently few. This is the "debug" part.
 	if (len < s) {
@@ -39,61 +37,57 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 			g.fillStyle = colors[symbol];
 			var x = scale(i);
 			var w = scale(i + 1) - x;
-			console.log("x: "+x+", w: "+w)
-			console.log(this.canvas.width)
 
 			g.fillRect(x, baseH, w, 20);
 		}
 	}
 
 	var newLastMatch;
+	var newHistR1;
+	var newHistR2;
 	var newHist = {};
 
-	// console.log("old hist: ")
-	// console.log(hist)
 	while (null != (match = patternFinder.nextMatch())) {
 		newLastMatch = match;
 		var r1 = undefined;
 
 		// match has not expanded, just update percentage of arc drawn
 		if (hist.hasOwnProperty(match)) {
-			newHist[match] = [min(100, hist[match][0] + 2), min(100, hist[match][1] + 2)]; 
+			newHist[match] = [min(100, hist[match][0] + 2), min(100, hist[match][1] + 2), max(100, hist[match][2] - 2)]; 
 		// match has expanded because start intervals of current match + last match are the same
 		} else if (typeof lastMatch !== 'undefined' && 
 				match[0].start == lastMatch[0].start && 
 				match[1].start == lastMatch[1].start) {
-			// shrink radius percentage by match_len-1 / match_len
-			match_len = match[0].getLength()
-			// console.log("old radius: "+hist[lastMatch][1])
-			// console.log("new radius: "+hist[lastMatch][1]*((match_len-1)/match_len))
-			r1 = hist[lastMatch][1]
-			// console.log("in if, " + r1)
-			newHist[match] = [hist[lastMatch][0] + 2, hist[lastMatch][1]*((match_len-1)/match_len)];
+			// radius1 percentage becomes lastr1/goalr1
+			var x1 = scale(match[0].start);
+			var x2 = scale(match[0].finish + .9);
+			var x3 = scale(match[1].start);
+			var ox = (x2 + x3) / 2;
+			var goalr1 = ox - x1
+			var goalr2 = ox - x2
+
+			// historical radii relative to current radius/frame
+			var relativeHistR1 = (histR1-ox)
+			var relativeHistR2 = (histR2-ox)
+			newHist[match] = [hist[lastMatch][0] + 2, 
+							  min(relativeHistR1/goalr1*100, goalr1/relativeHistR1*100),
+							  max(relativeHistR2/goalr2*100, goalr2/relativeHistR2*100)]
 		// brand new match, add it to our history
 		} else {
-			newHist[match] = [0, 100];
+			newHist[match] = [0, 100, 100];
 		}
 		
 		var x1 = scale(match[0].start);
 		var x2 = scale(match[0].finish + .9);
 		var x3 = scale(match[1].start);
-		var x4 = scale(match[1].finish + .9);
-		var y = baseH;
 		var ox = (x2 + x3) / 2;
-		// console.log(match[0].toString() + " " + match[1].toString());
-		// console.log("type of r1: "+ (typeof r1 === 'undefined'));
-		// if r1 is undefined, then we did not just expand the match. thus, can rely on newHist to have updated percentage
-		// if the match was just expanded, we should maintain the previous percentage because we are still drawing based off
-		// the old interval
-		if (typeof r1 === 'undefined') {
-			r1 = (ox - x1)/100 * newHist[match][1]
-		} else {
-			r1 = (ox - x1)/100 * r1
-		};
-		// var r1 = ox - x1;
-		var r2 = ox - x2;
-		// console.log("r1 "+r1);
-		// console.log("r2 " +r2);
+		var y = baseH;
+
+		var r1 = (ox - x1)/100 * newHist[match][1]
+		// absolute edge of radius with respect to left edge of canvas
+		newHistR1 = ox + r1
+		var r2 = (ox - x2)/100 * newHist[match][2];
+		newHistR2 = ox + r2
 		g.beginPath();
 		g.arc(ox, y, r1, -Math.PI/100 * newHist[match][0], 0, false);
 		g.arc(ox, y, r2, 0, -Math.PI/100 * newHist[match][0], true);
@@ -113,9 +107,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 		}
 		g.fill();
 	}
-	// console.log("new hist: ")
-	// console.log(newHist)
-	return [newHist, newLastMatch, masterScale];
+	return [newHist, newLastMatch, masterScale, newHistR1, newHistR2];
 };
 
 PatternRenderer.makeDisplay = function(container, side, sequence, minPatternLength, opt_base) {

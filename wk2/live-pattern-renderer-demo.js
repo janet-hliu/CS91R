@@ -4,6 +4,8 @@ var ascii_live_sequence = ""
 var lookup = {}
 var hist = {}; // match interval: (arc percentage, arc radius percentage)
 var lastMatch;
+var r1;
+var r2;
 var masterScale = 5;
 
 var input;
@@ -71,13 +73,14 @@ function onEnabled() {
 
     ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
     live_sequence = live_sequence.concat(e.note.identifier);
+    masterScale = 0
     // document.body.innerHTML+= `${e.note.identifier}, ${e.note.attack} <br>`;
     document.getElementById("live_sequence").innerHTML = live_sequence;
   })
 }
 
 async function updateSeq() {
-  masterScale = 5;
+  masterScale = 0;
   getOrCreateContext()
   live_sequence = ""
   ascii_live_sequence = ""
@@ -112,10 +115,14 @@ function draw() {
 
   var newHist;
   var newLastMatch;
-  [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
+  var newR1;
+  var newR2;
+  [newHist, newLastMatch, masterScale, newR1, newR2] = renderer.render(0, hist, lastMatch, masterScale, r1, r2);
 
   hist = newHist;
   lastMatch = newLastMatch;
+  r1 = newR1
+  r2 = newR2
 
   // Cn3Dn3En3Gn3Gn3Cn3Dn3En3
 }
