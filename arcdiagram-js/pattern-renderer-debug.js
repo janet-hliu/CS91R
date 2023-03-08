@@ -68,12 +68,14 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 		var x4 = scale(match[1].finish + .9);
 		var y = baseH;// / 2;
 		var ox = (x2 + x3) / 2;
+		
 		var r1 = ox - x1;
 		var r2 = ox - x2;
+
 		g.beginPath();
-		g.moveTo(x1, y);
+		//g.moveTo(x1, y);
 		g.arc(ox, y, r1, -Math.PI/100 * newHist[match], 0, false);
-		g.moveTo(x3, y);
+		//g.moveTo(x3, y);
 		g.arc(ox, y, r2, 0, -Math.PI/100 * newHist[match], true);
 	  if (!this.opt_base) {
 	  	g.fillStyle = 'rgba(0,51,153,.2)';
