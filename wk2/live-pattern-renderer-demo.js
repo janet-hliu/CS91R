@@ -4,8 +4,8 @@ var ascii_live_sequence = ""
 var lookup = {}
 var hist = {}; // match interval: (arc percentage, arc radius percentage)
 var lastMatch;
-var r1;
-var r2;
+// var r1;
+// var r2;
 var masterScale = 5;
 
 var input;
@@ -115,14 +115,14 @@ function draw() {
 
   var newHist;
   var newLastMatch;
-  var newR1;
-  var newR2;
-  [newHist, newLastMatch, masterScale, newR1, newR2] = renderer.render(0, hist, lastMatch, masterScale, r1, r2);
+  // var newR1;
+  // var newR2;
+  [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
 
   hist = newHist;
   lastMatch = newLastMatch;
-  r1 = newR1
-  r2 = newR2
+  // r1 = newR1
+  // r2 = newR2
 
   // Cn3Dn3En3Gn3Gn3Cn3Dn3En3
 }

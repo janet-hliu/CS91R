@@ -4,7 +4,7 @@ var PatternRenderer = function(canvas, sequence, opt_base) {
 	this.opt_base = opt_base;
 };
 
-PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, masterScale, histR1, histR2) {
+PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, masterScale) {
 	var patternFinder = new PatternFinder(this.sequence, minPatternLength);
 	var w = this.canvas.width;
 	var h = this.canvas.height;
@@ -43,71 +43,77 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 	}
 
 	var newLastMatch;
-	var newHistR1;
-	var newHistR2;
+	// var newHistR1;
+	// var newHistR2;
 	var newHist = {};
 
 	while (null != (match = patternFinder.nextMatch())) {
-		newLastMatch = match;
-		var r1 = undefined;
+		//console.log(match);
 
-		// match has not expanded, just update percentage of arc drawn
+		//we might need to check all matches due to certain edge cases. lastMatches rather than last match
+		if (typeof newLastMatch != 'undefined') {
+			if (match[1].finish >= newLastMatch[1].finish) {
+				newLastMatch = match;
+			}
+		} else {
+			newLastMatch = match;
+		}
+
 		if (hist.hasOwnProperty(match)) {
-			newHist[match] = [min(100, hist[match][0] + 2), min(100, hist[match][1] + 2), max(100, hist[match][2] - 2)]; 
-		// match has expanded because start intervals of current match + last match are the same
+			if (hist[match] < 100) {
+			newHist[match] = hist[match] + 2; //percentage of arc drawn
+			} else {
+			newHist[match] = 100;
+			}
 		} else if (typeof lastMatch !== 'undefined' && 
 				match[0].start == lastMatch[0].start && 
-				match[1].start == lastMatch[1].start) {
-			// radius1 percentage becomes lastr1/goalr1
-			var x1 = scale(match[0].start);
-			var x2 = scale(match[0].finish + .9);
-			var x3 = scale(match[1].start);
-			var ox = (x2 + x3) / 2;
-			var goalr1 = ox - x1
-			var goalr2 = ox - x2
-
-			// historical radii relative to current radius/frame
-			var relativeHistR1 = (histR1-ox)
-			var relativeHistR2 = (histR2-ox)
-			newHist[match] = [hist[lastMatch][0] + 2, 
-							  min(relativeHistR1/goalr1*100, goalr1/relativeHistR1*100),
-							  max(relativeHistR2/goalr2*100, goalr2/relativeHistR2*100)]
-		// brand new match, add it to our history
+				match[1].start == lastMatch[1].start) {// if both start intervals are the same
+			newHist[match] = hist[lastMatch] + 2;
 		} else {
-			newHist[match] = [0, 100, 100];
+			newHist[match] = 0;
 		}
 		
 		var x1 = scale(match[0].start);
 		var x2 = scale(match[0].finish + .9);
 		var x3 = scale(match[1].start);
+		var x4 = scale(match[1].finish + .9);
+		var y = baseH;// / 2;
 		var ox = (x2 + x3) / 2;
-		var y = baseH;
 
-		var r1 = (ox - x1)/100 * newHist[match][1]
-		// absolute edge of radius with respect to left edge of canvas
-		newHistR1 = ox + r1
-		var r2 = (ox - x2)/100 * newHist[match][2];
-		newHistR2 = ox + r2
+		// var goalr1 = ox - x1
+		// var goalr2 = ox - x2
+
+		// // historical radii relative to current radius/frame
+		// var relativeHistR1 = (histR1-ox)
+		// var relativeHistR2 = (histR2-ox)
+		// newHist[match] = [hist[lastMatch][0] + 2, 
+		// 					min(relativeHistR1/goalr1*100, goalr1/relativeHistR1*100),
+		// 					max(relativeHistR2/goalr2*100, goalr2/relativeHistR2*100)]
+		
+		var r1 = ox - x1;
+		var r2 = ox - x2;
+
 		g.beginPath();
-		g.arc(ox, y, r1, -Math.PI/100 * newHist[match][0], 0, false);
-		g.arc(ox, y, r2, 0, -Math.PI/100 * newHist[match][0], true);
-
-		if (!this.opt_base) {
-			g.fillStyle = 'rgba(0,51,153,.2)';
-		} else {
-			var d = this.opt_base[match[1].start] -
-						this.opt_base[match[0].start];
-			if (d == 0) {
-				g.fillStyle = 'rgba(0,51,153,.2)';
-			} else {
-				var p = (d + 1200) % 12;
-				var hue = Math.floor(360 * p / 12);
-				g.fillStyle = 'hsla(' + hue + ', 50%, 50%, 0.3)';
-			}
-		}
+		//g.moveTo(x1, y);
+		g.arc(ox, y, r1, -Math.PI/100 * newHist[match], 0, false);
+		//g.moveTo(x3, y);
+		g.arc(ox, y, r2, 0, -Math.PI/100 * newHist[match], true);
+	  if (!this.opt_base) {
+	  	g.fillStyle = 'rgba(0,51,153,.2)';
+	  } else {
+	  	var d = this.opt_base[match[1].start] -
+	  			    this.opt_base[match[0].start];
+	  	if (d == 0) {
+	  		g.fillStyle = 'rgba(0,51,153,.2)';
+	  	} else {
+		  	var p = (d + 1200) % 12;
+		  	var hue = Math.floor(360 * p / 12);
+		  	g.fillStyle = 'hsla(' + hue + ', 50%, 50%, 0.3)';
+	  	}
+	  }
 		g.fill();
 	}
-	return [newHist, newLastMatch, masterScale, newHistR1, newHistR2];
+	return [newHist, newLastMatch, masterScale];
 };
 
 PatternRenderer.makeDisplay = function(container, side, sequence, minPatternLength, opt_base) {
