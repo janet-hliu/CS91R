@@ -119,9 +119,6 @@ function draw() {
   [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
   //compare newHist and hist
 
-  // if (typeof lastMatch !== 'undefined' && !newHist.hasOwnProperty(lastMatch)) {
-  //   delete hist.lastMatch
-  // }
 
   hist = newHist;
   lastMatch = newLastMatch;
@@ -129,4 +126,5 @@ function draw() {
   //console.log(hist);
   // console.log(lastMatch)
   //Cn3Dn3En3Gn5Gn5Cn3Dn3En3
+  //Cn3Dn3En3Gn5Gn5Cn3Dn3En3Cn3Dn3En3Gn5Gn5Cn3Dn3En3
 }

@@ -46,7 +46,15 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 
 	while (null != (match = patternFinder.nextMatch())) {
 		//console.log(match);
-		newLastMatch = match;
+
+		//we might need to check all matches due to certain edge cases. lastMatches rather than last match
+		if (typeof newLastMatch != 'undefined') {
+			if (match[1].finish >= newLastMatch[1].finish) {
+				newLastMatch = match;
+			}
+		} else {
+			newLastMatch = match;
+		}
 
 		if (hist.hasOwnProperty(match)) {
 			if (hist[match] < 100) {
