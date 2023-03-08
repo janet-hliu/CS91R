@@ -118,11 +118,16 @@ function draw() {
   // var newR1;
   // var newR2;
   [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
+  //compare newHist and hist
+
 
   hist = newHist;
   lastMatch = newLastMatch;
   // r1 = newR1
   // r2 = newR2
 
-  // Cn3Dn3En3Gn3Gn3Cn3Dn3En3
+  //console.log(hist);
+  // console.log(lastMatch)
+  //Cn3Dn3En3Gn5Gn5Cn3Dn3En3
+  //Cn3Dn3En3Gn5Gn5Cn3Dn3En3Cn3Dn3En3Gn5Gn5Cn3Dn3En3
 }
