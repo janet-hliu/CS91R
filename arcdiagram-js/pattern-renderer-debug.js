@@ -18,7 +18,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 	}
 
 	function scale(n) {
-		return s * n / masterScale;
+		return s * n / 20; //static scale
 	}
 
 	g.fillStyle = '#fff';
