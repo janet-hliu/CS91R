@@ -14,11 +14,11 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 	var len = this.sequence.length;
 
 	if (masterScale < len) {
-		masterScale += 0.04;
+		masterScale += 0.08;
 	}
 
 	function scale(n) {
-		return s * n / masterScale;
+		return s * n / 20; //static scale
 	}
 	g.fillStyle = '#fff';
 	g.fillRect(0, 0, w, h);
