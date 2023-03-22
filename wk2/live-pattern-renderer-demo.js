@@ -1,7 +1,6 @@
 var time_interval = 40 //time between notes when testing
 
 var midi_object = {track0: []}
-var midi_sequence = ""
 var live_sequence = ""
 var ascii_live_sequence = ""
 var lookup = {}
@@ -89,7 +88,7 @@ function onEnabled() {
 
 //converts input to midi
 function text2midi() {
-  midi_sequence = ""
+  midi_object.track0 = [];
   let input_sequence = input.value()
   for (i = 0; i < input_sequence.length; i += 3) {
     var curr_note = ""
@@ -99,7 +98,7 @@ function text2midi() {
       curr_note = input_sequence.substring(i, i+3)
     }
     let midi_num = Utilities.guessNoteNumber(curr_note);
-    midi_sequence = midi_sequence.concat(midi_num);
+    midi_object.track0.push(midi_num);
     live_sequence = live_sequence.concat(curr_note);
   }
   //console.log(midi_sequence)
@@ -141,7 +140,7 @@ function draw() {
   var newLastMatch;
   // var newR1;
   // var newR2;
-  [newHist, newLastMatch, masterScale] = renderer.render(2, hist, lastMatch, masterScale);
+  [newHist, newLastMatch, masterScale] = renderer.render(6, hist, lastMatch, masterScale);
   //compare newHist and hist
 
 

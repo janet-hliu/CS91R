@@ -17,14 +17,12 @@ function renderTrack(track) {
 	// 	steps[i - 1] = sequence[i] - sequence[i - 1];
 	// }
     WTF = sequence;
-    //return sequence;
 }
 
 function render(song) {
 	// document.getElementById('canvases').innerHTML = '';
     //print(typeof song.tracks)
-    renderTrack(song.tracks[0]); //what track to do??
-    //return sequence;
+    renderTrack(song.tracks[1]); //what track to do??
 }
 
 var midiCatalog = [
