@@ -1,4 +1,6 @@
-// make a datastructure to keep track of midi notes
+var time_interval = 40 //time between notes when testing
+
+var midi_object = {track0: []}
 var midi_sequence = ""
 var live_sequence = ""
 var ascii_live_sequence = ""
@@ -33,6 +35,9 @@ function setup() {
     .then(onEnabled)
     .catch(err => alert(err));
   })
+
+  midi2asciisequence(midi_object)
+
 }
 
 // Function to get or create an audio context
@@ -97,25 +102,31 @@ function text2midi() {
     midi_sequence = midi_sequence.concat(midi_num);
     live_sequence = live_sequence.concat(curr_note);
   }
-  console.log(midi_sequence)
+  //console.log(midi_sequence)
 }
 
 //converts midi to ascii sequence and plays
 async function updateSeq() {
-  text2midi();
+
+  if (midi_object.track0 != '') {
+    midi_object.track0
+  } else {
+    text2midi();
+  }
+
   masterScale = 0;
   getOrCreateContext()
   live_sequence = ""
   ascii_live_sequence = ""
   // iterate through input sequence, find midi note name and number
-  for (i = 0; i < midi_sequence.length; i+=2) {
+  for (i = 0; i < midi_object.track0.length; ++i) {
 
-    var midi_num = midi_sequence[i].concat(midi_sequence[i+1]);
+    var midi_num = midi_object.track0[i];
     var ascii_rep = String.fromCharCode(midi_num);
     var freq = Math.pow(2, (midi_num-69)/12)*440;
     oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
     ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
-    await timer(400);
+    await timer(time_interval);
   }
   audioContext.suspend()
 }
@@ -130,7 +141,7 @@ function draw() {
   var newLastMatch;
   // var newR1;
   // var newR2;
-  [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
+  [newHist, newLastMatch, masterScale] = renderer.render(2, hist, lastMatch, masterScale);
   //compare newHist and hist
 
 
