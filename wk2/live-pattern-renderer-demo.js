@@ -1,4 +1,5 @@
 // make a datastructure to keep track of midi notes
+var midi_sequence = ""
 var live_sequence = ""
 var ascii_live_sequence = ""
 var lookup = {}
@@ -79,14 +80,12 @@ function onEnabled() {
   })
 }
 
-async function updateSeq() {
-  masterScale = 0;
-  getOrCreateContext()
-  live_sequence = ""
-  ascii_live_sequence = ""
-  let input_sequence = input.value()
+//have a converter, then a player
 
-  // iterate through input sequence, find midi note name and number
+//converts input to midi
+function text2midi() {
+  midi_sequence = ""
+  let input_sequence = input.value()
   for (i = 0; i < input_sequence.length; i += 3) {
     var curr_note = ""
     if (input_sequence[i+1] == "n") {
@@ -95,13 +94,27 @@ async function updateSeq() {
       curr_note = input_sequence.substring(i, i+3)
     }
     let midi_num = Utilities.guessNoteNumber(curr_note);
+    midi_sequence = midi_sequence.concat(midi_num);
+    live_sequence = live_sequence.concat(curr_note);
+  }
+  console.log(midi_sequence)
+}
+
+//converts midi to ascii sequence and plays
+async function updateSeq() {
+  text2midi();
+  masterScale = 0;
+  getOrCreateContext()
+  live_sequence = ""
+  ascii_live_sequence = ""
+  // iterate through input sequence, find midi note name and number
+  for (i = 0; i < midi_sequence.length; i+=2) {
+
+    var midi_num = midi_sequence[i].concat(midi_sequence[i+1]);
     var ascii_rep = String.fromCharCode(midi_num);
     var freq = Math.pow(2, (midi_num-69)/12)*440;
     oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
-
     ascii_live_sequence = ascii_live_sequence.concat(ascii_rep);
-    live_sequence = live_sequence.concat(curr_note);
-
     await timer(400);
   }
   audioContext.suspend()
@@ -110,7 +123,7 @@ async function updateSeq() {
 function draw() {
   // put drawing code here
   var canvas = document.getElementById('output');
-  console.log(ascii_live_sequence)
+  // console.log(live_sequence)
   var renderer = new PatternRenderer(canvas, ascii_live_sequence);
 
   var newHist;
