@@ -21,7 +21,7 @@ function renderTrack(track) {
 
 function render(song) {
 	// document.getElementById('canvases').innerHTML = '';
-    //print(typeof song.tracks)
+    print(song.tracks)
     renderTrack(song.tracks[1]); //what track to do??
 }
 
