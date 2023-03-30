@@ -3,12 +3,19 @@ class Position{
     this.x = x;
     this.y = y;
   }
+
+  dist(pos) {
+    var dx = pos.x - this.x;
+    var dy = pos.y - this.y;
+    return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+  }
 }
 
 class Note {
   constructor(pointWeight, col, initX, initY, goalX, goalY) {
     this.pointWeight = pointWeight;
     this.pointCol = col;
+    this.ogPointCol = col;
     this.curPos = new Position(initX, initY);
     this.goalPos = new Position(goalX, goalY);
     this.hasRing = false;
@@ -28,13 +35,19 @@ class Note {
     }
   }
 
-  update() {
+  update(backgroundCol) {
     // updates point color, point distance, etc. and ring color, radii
     // var elapsedTime = millis() - this.startTime;
     // var stepAmount = pow(elapsedTime, 1.0);
     // console.log(stepAmount)
-    var lerpedX = lerp(this.curPos.x, this.goalPos.x, 0.05)
-    var lerpedY = lerp(this.curPos.y, this.goalPos.y, 0.05)
+
+    // if we are at the goal position, the point slowly fades out
+    if (this.curPos.dist(this.goalPos) < 1) {
+      this.curPos = this.goalPos;
+      this.pointCol = lerpColor(color(this.pointCol), color(backgroundCol), 0.15);
+    }
+    var lerpedX = lerp(this.curPos.x, this.goalPos.x, 0.03)
+    var lerpedY = lerp(this.curPos.y, this.goalPos.y, 0.03)
     this.curPos = new Position(lerpedX, lerpedY);
   }
 
