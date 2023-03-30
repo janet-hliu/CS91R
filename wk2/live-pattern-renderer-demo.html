@@ -17,7 +17,13 @@
   <script src="../addons/p5.anims.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
   <script src="live-pattern-renderer-demo.js"></script>
+  <script src="live-pattern-renderer-midi-parser.js"></script>
+  <script src="read-midi.js"></script>
+  <script src="jasmid/stream.js"></script>
+  <script src="jasmid/midifile.js"></script>
+
   
+
 
   <style>
     body {
@@ -29,6 +35,9 @@
 </head>
 
 <h1>Live Pattern Finder Demo</h1>
+<br>
+<h2 id="midi-display"></h2>
+<div id="links"></div>
 <canvas id="output" width=2000 height=1200
 style="width:1000px;height:600px"></canvas>
 <div id="live_sequence"></div>
