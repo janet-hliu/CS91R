@@ -59,7 +59,6 @@ function onEnabled() {
 
     pattern_tracker.addNote(ascii_rep);
     live_sequence = live_sequence.concat(e.note.identifier);
-    // document.body.innerHTML+= `${e.note.identifier}, ${e.note.attack} <br>`;
     document.getElementById("live_sequence").innerHTML = live_sequence;
   })
 }
@@ -87,7 +86,7 @@ async function updateSeq() {
     pattern_tracker.addNote(ascii_rep);
     live_sequence = live_sequence.concat(curr_note);
 
-    await timer(400);
+    await timer(800);
   }
   audioContext.suspend()
 }
@@ -129,9 +128,6 @@ function draw() {
     note.draw(); 
     note.update(backgroundBlues[2]);
   })
-
-  
-  // [newHist, newLastMatch, masterScale] = renderer.render(0, hist, lastMatch, masterScale);
 }
 
 function randomVal(arr) {
