@@ -8,7 +8,6 @@ class PuddlePattern{
 	// updates this.notes, called when sequence changes
 	update() {
 		var patternFinder = new PatternFinder(this.seq, this.minPatternLength);
-		var len = this.seq.length;
 		console.log(this.seq);
 	
 		while (null != (match = patternFinder.nextMatch())) {
@@ -33,7 +32,7 @@ class PuddlePattern{
 		var goalY = random(10, height-10);
 	
 		var col = lumens[0];
-		append(this.notes, new Note(10, col, width + 20, initY, goalX, goalY));
+		append(this.notes, new Note(10, col, width + 20, initY, goalX, goalY, next));
 		this.update();
 	}
 	

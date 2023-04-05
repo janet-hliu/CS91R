@@ -14,6 +14,8 @@ var manualButton;
 var liveButton;
 var audioContext;
 var oscillator;
+var transparentBackgroundCol;
+var NOTE_DURATION = 100;
 
 // returns a Promise that resolves after "ms" Milliseconds
 // used for playing manual sequences
@@ -30,7 +32,6 @@ function getOrCreateContext() {
     audioContext.resume();
   }
   return audioContext;
-  
 }
 
 // triggered when WEBMIDI.js is ready
@@ -52,7 +53,6 @@ function onEnabled() {
   // jeff's piano shows all info coming from channel 16: display e.message.channel
   const mySynth = WebMidi.inputs[0].channels[16];
 
-  // NEW NOTE, continue to modify
   mySynth.addListener("noteon", e => {
     // e.note.number is a number from 0 - 127, representing full MIDI range
     var ascii_rep = String.fromCharCode(e.note.number)
@@ -69,26 +69,47 @@ async function updateSeq() {
   live_sequence = "";
   pattern_tracker.clear();
   let input_sequence = input.value();
+  var seq_arr = [];
 
-  // iterate through input sequence, find midi note name and number
-  for (i = 0; i < input_sequence.length; i += 3) {
-    var curr_note = ""
-    if (input_sequence[i+1] == "n") {
-      curr_note = input_sequence[i] + input_sequence[i+2]
-    } else {
-      curr_note = input_sequence.substring(i, i+3)
+  // load midi file into pattern tracker
+  if (input_sequence.includes(".mid")) {
+    readMidi(url, async function(song) {
+      seq_arr = render(song);
+      // convert midi notes into ascii codes
+      for (let i = 0; i < seq_arr.length; i++) {
+        let midi_num = seq_arr[i];
+        let ascii_rep = String.fromCharCode(seq_arr[i]);
+        let freq = Math.pow(2, (midi_num-69)/12)*440;
+        oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
+
+        pattern_tracker.addNote(ascii_rep);
+
+        await timer(NOTE_DURATION);
+      }
+      is_currently_playing = false;
+      audioContext.suspend()
+    });
+  } else {
+    // iterate through manual input sequence, find midi note name and number
+    for (i = 0; i < input_sequence.length; i += 3) {
+      let curr_note = ""
+      if (input_sequence[i+1] == "n") {
+        curr_note = input_sequence[i] + input_sequence[i+2]
+      } else {
+        curr_note = input_sequence.substring(i, i+3)
+      }
+      let midi_num = Utilities.guessNoteNumber(curr_note);
+      let ascii_rep = String.fromCharCode(midi_num);
+      let freq = Math.pow(2, (midi_num-69)/12)*440;
+      oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
+
+      pattern_tracker.addNote(ascii_rep);
+      live_sequence = live_sequence.concat(curr_note);
+
+      await timer(NOTE_DURATION);
     }
-    let midi_num = Utilities.guessNoteNumber(curr_note);
-    var ascii_rep = String.fromCharCode(midi_num);
-    var freq = Math.pow(2, (midi_num-69)/12)*440;
-    oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
-
-    pattern_tracker.addNote(ascii_rep);
-    live_sequence = live_sequence.concat(curr_note);
-
-    await timer(800);
+    audioContext.suspend()
   }
-  audioContext.suspend()
 }
 
 function setup() {
@@ -96,7 +117,6 @@ function setup() {
   angleMode(DEGREES);
   stroke(255);
   strokeWeight(10);
-  background(backgroundBlues[2]);
 
   // manual input
   input = createInput('Cn3Dn3En3Gn5Gn5Cn3Dn3En3Cn3Dn3En3Gn5Gn5Cn3Dn3En3');
@@ -116,20 +136,21 @@ function setup() {
     .catch(err => alert(err));
   })
 
+  renderMidiTracks();
+
   // pattern rendering
   pattern_tracker = new PuddlePattern([], "");
+  transparentBackgroundCol = color(0, 21, 36);
+  transparentBackgroundCol.setAlpha(5);
+  background(backgroundBlues[2]);
 }
 
 function draw() {
+  // background(transparentBackgroundCol);
   clear();
-
   background(backgroundBlues[2]);
   pattern_tracker.getNotes().forEach(function(note) {
     note.draw(); 
     note.update(backgroundBlues[2]);
   })
-}
-
-function randomVal(arr) {
-  return(arr[int(random(arr.length))])
 }

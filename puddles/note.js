@@ -20,7 +20,7 @@ class Position{
 }
 
 class Note {
-  constructor(pointWeight, col, initX, initY, goalX, goalY) {
+  constructor(pointWeight, col, initX, initY, goalX, goalY, val) {
     this.pointWeight = pointWeight;
     this.pointCol = col;
     this.ogPointCol = col;
@@ -30,6 +30,7 @@ class Note {
     this.hasRing = false;
     this.ringCol = col;
     this.startTime = millis();
+    this.val = val;
   }
 
   draw() {
@@ -96,5 +97,13 @@ class Note {
 
   setGoalPos(pos) {
     this.goalPos = pos;
+  }
+
+  getAsciiVal() {
+    return this.val;
+  }
+
+  getMidiVal() {
+    return (this.val.charCodeAt(0));
   }
 }
