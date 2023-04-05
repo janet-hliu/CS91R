@@ -12,7 +12,6 @@ class PuddlePattern{
 	
 		while (null != (match = patternFinder.nextMatch())) {
 			var i1 = match[0].start; 
-			// var i2 = match[0].finish;
 			var j1 = match[1].start; 
 			var j2 = match[1].finish;
 			var newGoal = this.notes[i1].ogGoalPos;
@@ -24,15 +23,14 @@ class PuddlePattern{
 		}
 	}
 
-	addNote(next) {
+	addNote(next, canvasH, canvasW) {
 		this.seq = this.seq.concat(next);
-		var initY = random(height);
+		var initY = random(canvasH);
 	
-		var goalX = max(random(3, 40), randomGaussian(0.35*width, 0.15*width));
-		var goalY = random(10, height-10);
-	
-		var col = lumens[0];
-		append(this.notes, new Note(10, col, width + 20, initY, goalX, goalY, next));
+		var goalX = max(random(3, 40), randomGaussian(0.35*canvasW, 0.15*canvasW));
+		var goalY = random(10, canvasH-10);
+		var col = 255; // lumens[0];
+		append(this.notes, new Note(10, col, canvasW, initY, goalX, goalY, next));
 		this.update();
 	}
 	

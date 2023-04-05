@@ -33,18 +33,22 @@ class Note {
     this.val = val;
   }
 
-  draw() {
-    // drawings point and ring
-    strokeWeight(this.pointWeight);
-    stroke(this.pointCol);
-    point(this.curPos.x, this.curPos.y);
-
-    if (this.hasRing && this.curPos == this.goalPos) {
-      stroke(this.ringWeight);
-      stroke(this.ringCol);
-      noFill();
-      circle(this.curPos.x, this.curPos.y, this.ringDiam);
+  draw(buffer, backgroundCol) {
+    if (this.pointCol == backgroundCol) {
+      return;
     }
+    
+    // drawings point and ring
+    buffer.strokeWeight(this.pointWeight);
+    buffer.stroke(this.pointCol);
+    buffer.point(this.curPos.x, this.curPos.y);
+
+    // if (this.hasRing && this.curPos == this.goalPos) {
+    //   stroke(this.ringWeight);
+    //   stroke(this.ringCol);
+    //   noFill();
+    //   circle(this.curPos.x, this.curPos.y, this.ringDiam);
+    // }
   }
 
   update(backgroundCol) {
@@ -53,38 +57,32 @@ class Note {
     // var stepAmount = pow(elapsedTime, 1.0);
     // console.log(stepAmount)
 
-    // update rings
-    if (this.hasRing && this.curPos == this.goalPos) {
-      // if (colorDist(this.ringCol, backgroundCol) < 100) {
-      //   this.ringCol = backgroundCol;
-      //   this.hasRing = false;
-      //   return;
-      // }
-
-      this.ringDiam += 30;
-      this.ringCol = lerpColor(color(this.ringCol), color(backgroundCol), 0.01);
+    // should display ring if we a) have a ring + the current position is the goal
+    if (this.hasRing && (this.curPos.dist(this.goalPos) < 1)) { // this.curPos == this.goalPos) {
+      this.displayRing = true;
+      // this.ringDiam += 30;
+      // this.ringCol = lerpColor(color(this.ringCol), color(backgroundCol), 0.01);
     }
-
-    // lerp point distance
-    var lerpedX = lerp(this.curPos.x, this.goalPos.x, 0.03);
-    var lerpedY = lerp(this.curPos.y, this.goalPos.y, 0.03);
-    this.curPos = new Position(lerpedX, lerpedY);
-
 
     // if we are at the goal position, the point fades out
     if (this.curPos.dist(this.goalPos) < 1) {
       this.curPos = this.goalPos;
 
       // still are drawing ring, don't fade out point
-      if (this.hasRing) {
-        return;
-      }
+      // if (this.hasRing) {
+      //   return;
+      // }
 
       if (colorDist(this.pointCol, backgroundCol) < 20) {
         this.pointCol = backgroundCol;
         return;
       }
       this.pointCol = lerpColor(color(this.pointCol), color(backgroundCol), 0.05);
+    } else {
+      // lerp point distance
+      let lerpedX = lerp(this.curPos.x, this.goalPos.x, 0.03);
+      let lerpedY = lerp(this.curPos.y, this.goalPos.y, 0.03);
+      this.curPos = new Position(lerpedX, lerpedY);
     }
   }
 
@@ -93,6 +91,7 @@ class Note {
     this.ringCol = this.pointCol;
     this.ringWeight = weight;
     this.hasRing = true;
+    this.newRing = false;
   }
 
   setGoalPos(pos) {
@@ -104,6 +103,19 @@ class Note {
   }
 
   getMidiVal() {
-    return (this.val.charCodeAt(0));
+    return this.val.charCodeAt(0);
+  }
+
+  getPos() {
+    return this.curPos;
+  }
+
+  shouldDisplayRing() {
+    if (this.displayRing) {
+      this.displayRing = false;
+      this.hasRing = false;
+      return true;
+    }
+    return false;
   }
 }

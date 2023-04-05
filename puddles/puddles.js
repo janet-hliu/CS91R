@@ -1,5 +1,6 @@
 // Cn3Dn3En3Gn5Gn5Cn3Dn3En3Cn3Dn3En3Gn5Gn5Cn3Dn3En3
-var backgroundBlues = ["#001219", "#001524", "#003049", "#335C67", "#15616D", "#293241"];
+// var backgroundBlues = ["#001219", "#001524", "#003049", "#335C67", "#15616D", "#293241"];
+// var backgroundBlue = [0, 21, 36];
 var lumens = ["#D5C8DC", "#CDB4DB","#B5838D", "#D6AAB3", "#E6C7D3", "#DDC0C1", "#E5989B",
               "#3d5a80", "#00B4D8","#48CAE4", "#98C1D9", "#ADE8F4", "#e0fbfc", 
               "#005FA4", "#0085D7", "#0090ED", "#00EDFF",
@@ -15,11 +16,21 @@ var liveButton;
 var audioContext;
 var oscillator;
 var transparentBackgroundCol;
-var NOTE_DURATION = 100;
+var NOTE_DURATION = 40;
 
 // returns a Promise that resolves after "ms" Milliseconds
 // used for playing manual sequences
 const timer = ms => new Promise(res => setTimeout(res, ms))
+
+// variables needed to store pixel data for ripple effect
+// https://www.youtube.com/watch?v=BZUdGqeOD0w
+let col;
+let row;
+let current;
+let previous;
+let dampening = 0.99;
+var rippleBuffer;
+var pointBuffer;
 
 // gets or creates an audio context
 function getOrCreateContext() {
@@ -57,7 +68,7 @@ function onEnabled() {
     // e.note.number is a number from 0 - 127, representing full MIDI range
     var ascii_rep = String.fromCharCode(e.note.number)
 
-    pattern_tracker.addNote(ascii_rep);
+    pattern_tracker.addNote(ascii_rep, row, col);
     live_sequence = live_sequence.concat(e.note.identifier);
     document.getElementById("live_sequence").innerHTML = live_sequence;
   })
@@ -82,7 +93,7 @@ async function updateSeq() {
         let freq = Math.pow(2, (midi_num-69)/12)*440;
         oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
 
-        pattern_tracker.addNote(ascii_rep);
+        pattern_tracker.addNote(ascii_rep, row, col);
 
         await timer(NOTE_DURATION);
       }
@@ -103,7 +114,7 @@ async function updateSeq() {
       let freq = Math.pow(2, (midi_num-69)/12)*440;
       oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0);
 
-      pattern_tracker.addNote(ascii_rep);
+      pattern_tracker.addNote(ascii_rep, row, col);
       live_sequence = live_sequence.concat(curr_note);
 
       await timer(NOTE_DURATION);
@@ -113,7 +124,13 @@ async function updateSeq() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  pixelDensity(1);
+  col = 600;
+  row = 400;
+  var cnv = createCanvas(windowWidth, windowHeight);
+  // cnv.position(100, 100);
+  rippleBuffer = createGraphics(col, row);
+  pointBuffer = createGraphics(col, row);
   angleMode(DEGREES);
   stroke(255);
   strokeWeight(10);
@@ -138,19 +155,69 @@ function setup() {
 
   renderMidiTracks();
 
+  // initializing array data for ripples
+  current = new Array(col).fill(0).map(n => new Array(row).fill(0));  // new Array(col).fill(backgroundBlue).map(n => new Array(row).fill(backgroundBlue));
+  previous = new Array(col).fill(0).map(n => new Array(row).fill(0)); // new Array(col).fill(backgroundBlue).map(n => new Array(row).fill(backgroundBlue));
+
   // pattern rendering
   pattern_tracker = new PuddlePattern([], "");
-  transparentBackgroundCol = color(0, 21, 36);
-  transparentBackgroundCol.setAlpha(5);
-  background(backgroundBlues[2]);
+  // transparentBackgroundCol = color(backgroundBlues[2]);
+  // transparentBackgroundCol.setAlpha(5);
+  rippleBuffer.background(0);
+}
+
+function mouseDragged() {
+  previous[mouseX-100][mouseY-100] = 2500;
 }
 
 function draw() {
-  // background(transparentBackgroundCol);
-  clear();
-  background(backgroundBlues[2]);
+  pointBuffer.clear();
+  rippleBuffer.loadPixels();
+  for (let i = 1; i < col - 1; i++) {
+    for (let j = 1; j < row - 1; j++) {
+      current[i][j] =
+        (previous[i - 1][j] +
+          previous[i + 1][j] +
+          previous[i][j - 1] +
+          previous[i][j + 1]) /
+          2 -
+        current[i][j];
+      current[i][j] = current[i][j] * dampening;
+      // Unlike in Processing, the pixels array in p5.js has 4 entries
+      // for each pixel, so we have to multiply the index by 4 and then
+      // set the entries for each color component separately.
+      let index = (i + j * col) * 4;
+      rippleBuffer.pixels[index + 0] = current[i][j];
+      rippleBuffer.pixels[index + 1] = current[i][j];
+      rippleBuffer.pixels[index + 2] = current[i][j];
+      // below is my try at color
+      // current[i][j] =
+      //   (previous[i-1][j].map((x, k) => x + previous[i+1][j][k])
+                          // .map((x, k) => x + previous[i][j-1][k])
+                          // .map((x, k) => x + previous[i][j+1][k])
+                          // .map((x) => x/2)
+                          // .map((x, k)=>x - current[i][j][k])
+                          // .map((x) => x * dampening);
+      // let index = (i + j * col) * 4;
+      // pixels[index] = current[i][j][0];
+      // pixels[index + 1] = current[i][j][1];
+      // pixels[index + 2] = current[i][j][2];
+    }
+  }
+  rippleBuffer.updatePixels();
+  let temp = previous;
+  previous = current;
+  current = temp;
+
   pattern_tracker.getNotes().forEach(function(note) {
-    note.draw(); 
-    note.update(backgroundBlues[2]);
+    note.draw(pointBuffer, 0);
+    note.update(0);
+    if (note.shouldDisplayRing()) {
+      let pos = note.getPos();
+      previous[int(pos.x)][int(pos.y)] = 2500;
+    }
   })
+
+  image(rippleBuffer, 100, 100);
+  image(pointBuffer, 100, 100);
 }
