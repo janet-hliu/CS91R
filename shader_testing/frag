@@ -104,8 +104,8 @@ void main() {
 	float maxBrightness = 0.01;
 	vec2 speedSum = vec2(0.0);
 	
-	for (int i = 0 ; i < maxParticles;i++) {
-		if (i >= numParticles) {break;}
+	for (int i = 0 ; i < maxParticles; i++) {
+		if (i >= 20) {break;}
 		vec2 p = particles[i];
 		p.xy = p.xy*2.0 - 1.0;
 		
