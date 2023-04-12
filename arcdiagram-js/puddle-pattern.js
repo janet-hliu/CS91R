@@ -2,7 +2,7 @@ class PuddlePattern{
 	constructor(notes, sequence, minPatternLength) {
 		this.notes = notes;
 		this.seq = sequence;
-		this.minPatternLength = 3;
+		this.minPatternLength = 5;
 	}
 
 	// updates this.notes, called when sequence changes

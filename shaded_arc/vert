@@ -1,0 +1,16 @@
+let vertShader = `
+precision highp float;
+attribute vec3 aPosition;
+attribute vec2 aTexCoord;
+
+varying vec4 pos;
+varying vec2 vTexCoord;
+
+void main() {
+	vTexCoord = aTexCoord;
+  pos = vec4(aPosition,1.0);
+	// this transforms us from 0 -1 to -1 to 1 for x,y, filling the whole clipspace of screen
+  pos.xy = pos.xy*2.0 - 1.0;
+  gl_Position = pos;
+}
+`
