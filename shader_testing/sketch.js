@@ -32,6 +32,7 @@ function draw() {
 	}, [])
   	// console.log(shaderParticles)
 	
+	myShader.setUniform('resolution', [width, height]);
 	myShader.setUniform('numParticles', numParticles);
 	myShader.setUniform('particles', shaderParticles);
 	myShader.setUniform('texture', screen);
