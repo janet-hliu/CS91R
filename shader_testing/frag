@@ -1,0 +1,127 @@
+let fragShader = `
+precision highp float;
+
+float M_PI = 3.1415926535897932384626433832795;
+
+float hash(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }
+float hash(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
+
+float noise(vec3 x) {
+    const vec3 step = vec3(110, 241, 171);
+
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+ 
+    // For performance, compute the base input to a 1D hash from the integer part of the argument and the 
+    // incremental change to the 1D based on the 3D -> 1D wrapping
+    float n = dot(i, step);
+
+    vec3 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+               mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+                   mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+}
+
+
+float sdArc(in vec2 p1, in vec2 p2, in vec2 p, in vec2 sc, in float ra, float rb, float time) {
+    // sc is the sin/cos of the arc's aperture
+		
+	p1.xy = p1.xy*2.0 - 1.0;
+	p2.xy = p2.xy*2.0 - 1.0;
+	float radius = abs(p2.x - p1.x) / 2000.0;
+		
+    p.x = abs(p.x);
+		p.y += 0.5;
+    float r = ((sc.y*p.x>sc.x*p.y) ? length(p-sc*radius) : 
+                                  abs(length(p)-radius)) - rb;
+																	
+	return r + 0.005;// + ns;
+}
+
+float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in float time) {
+	p1.xy = p1.xy*2.0 - 1.0;
+	p2.xy = p2.xy*2.0 - 1.0;
+	float radius = abs(p2.x - p1.x) / 2.0;
+	
+	float topOfArc = p1.y + radius;
+	vec2 origin = vec2((p2.x + p1.x) / 2.0, p1.y);
+	
+	//general angle for complete arc
+	float angle;
+	if (fragCoords.x == origin.x) {
+	 	angle = M_PI / 2.;
+	} else {
+		angle = atan(fragCoords.y - origin.y, fragCoords.x - origin.x);
+	}
+	
+	vec2 arcPoint;
+	float aperture = min(M_PI , 0. + 2. * time);
+	if (angle > aperture || angle < 0.) {
+		vec2 aperturePoint = vec2(origin.x + radius * cos(aperture), origin.y + radius * sin(aperture));
+		if (distance(fragCoords, aperturePoint) > distance(fragCoords, max(p1, p2))) {
+			arcPoint = max(p1, p2);
+		} else {
+			arcPoint = aperturePoint;
+		}
+	} else {
+		arcPoint = vec2(origin.x + radius * cos(angle), origin.y + radius * sin(angle));
+	}
+	return distance(fragCoords, arcPoint) + 2.;
+}
+
+varying vec2 vTexCoord;
+uniform sampler2D texture;
+const int maxParticles = 1000;
+uniform int numParticles;
+uniform vec2 particles[maxParticles];
+uniform float time;
+
+void main() {
+	
+	/////arc
+	vec2 uv = vTexCoord; // x: <0, 1>, y: <0, 1>
+	uv *= 2.0;
+	uv -= 1.0;
+	uv.x *= 2.0;
+	
+  float tb = 3.14 / 2.0;
+  float rb = 0.00;
+  vec2  sc = vec2(sin(tb),cos(tb));
+    
+  // distance
+	vec2 p1 = particles[0];
+	vec2 p2 = particles[1];
+	
+	float arcBrightness = 0.0;
+	float maxArcBr = 0.01;
+	
+	float arcDist = myArc(gl_FragCoord.xy, p1, p2, time);
+	arcDist = clamp(arcDist, 0., 2000.);
+	arcBrightness += maxArcBr/(arcDist*.001);
+  	vec4 col = vec4(arcBrightness*0., arcBrightness*0.5, arcBrightness*1., 0.0);
+
+	/////particles
+	vec4 color = vec4(0.0,0.0,0.0,1.0);
+	float brightness = 0.0;
+	float maxBrightness = 0.01;
+	vec2 speedSum = vec2(0.0);
+	
+	for (int i = 0 ; i < maxParticles;i++) {
+		if (i >= numParticles) {break;}
+		vec2 p = particles[i];
+		p.xy = p.xy*2.0 - 1.0;
+		
+		float dist = distance(gl_FragCoord.xy,p);
+		brightness += maxBrightness/(dist*.001);
+		speedSum += 0.0;
+	}
+
+	color.r = 0.1*brightness;
+	color.b = brightness;
+	color.g = 0.5*brightness;
+	
+	gl_FragColor = color + col;
+
+}
+`

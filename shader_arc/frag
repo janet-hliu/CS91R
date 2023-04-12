@@ -26,7 +26,7 @@ float sdArc( in vec2 p, in vec2 sc, in float ra, float rb, float time) {
     // sc is the sin/cos of the arc's aperture
 		
     p.x = abs(p.x);
-	p.y += 0.5;
+		p.y += 0.5;
     float r = ((sc.y*p.x>sc.x*p.y) ? length(p-sc*ra) : 
                                   abs(length(p)-ra)) - rb;
 																	
@@ -51,18 +51,18 @@ void main() {
 	uv -= 1.0;
 	uv.x *= 2.0;
 	
-	float tb = 3.14 / 2.0;
-	float rb = 0.00;
-	vec2  sc = vec2(sin(tb*(1.+sin(time))),cos(tb*(1.+sin(time))));
-		
-	// distance
-	float d = sdArc(uv,sc, 0.7, rb, time);
+  float tb = 3.14 / 2.0;
+  float rb = 0.00;
+  vec2  sc = vec2(sin(tb*(1.+sin(time))),cos(tb*(1.+sin(time))));
+    
+  // distance
+  float d = sdArc(uv,sc, 0.7, rb, time);
 	d = clamp(d, 0., 2000.);
 
-	vec3 col = vec3(step(0., -d));
-	col += clamp(vec3(0.001/d), 0., 1.) * 12.; // add glow
+  vec3 col = vec3(step(0., -d));
+  col += clamp(vec3(0.001/d), 0., 1.) * 12.; // add glow
 	float maxArcBr = 1.;
-  	col *= vec3(maxArcBr*0., maxArcBr*0.5, maxArcBr*1.);
+  col *= vec3(maxArcBr*0., maxArcBr*0.5, maxArcBr*1.);
 
 	/////particles
 	vec4 color = vec4(vec3(0.0),1.0);
@@ -85,6 +85,9 @@ void main() {
 	color.g = 0.5*brightness;
 	
 	gl_FragColor = color + vec4(col,0.0);
+	
+  //gl_FragColor = vec4(col,0.4);
+
 }
 `
 ////////////////////////////////////////////////////////////ATTEMPT TWO//////////////////////////////////////////////////////////
