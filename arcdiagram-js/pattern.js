@@ -1,36 +1,78 @@
 class Pattern {
-	constructor(notes, sequence, minPatternLength) {
+	constructor(notes, sequence, width, height, minPatternLength) {
+		// [note1x, note1y, note2x, note2y, ...]
+		// index i's x location is at: 2*x
+		// index i's y location is at: 2x+1
 		this.notes = notes;
+		// [start_interval1x, start_int1y, end_int1x, end_int1y, start_int2x, start_int2y, end_int2x, end_int2y, brightness, percentage];
+		this.arcs = [];
+
+		this.num_notes = sequence.length;
+		this.num_arcs = 0;
+		// string of ascii representations
 		this.seq = sequence;
+
+		// canvas width + height
+		// console.log(width); // 1136
+		// console.log(height) // 1016
+		this.width = width;
+		this.height = height;
 		this.minPatternLength = 5;
+		this.s = Math.min(width, 2 * height);
+		// y position for the render
+		this.baseH = this.height * 0.25;
 	}
 
 	// updates this.notes, called when sequence changes
-	update() {
+	updateNotes() {
+		for (var i = 0; i < this.num_notes; i++) {
+			var [x, y] = this.findLocation(i);
+			this.notes[2*i]= x;
+			this.notes[2*i+1]= y;
+		}
 		var patternFinder = new PatternFinder(this.seq, this.minPatternLength);
 		console.log(this.seq);
+		this.arcs = [];
+		this.num_arcs = 0;
 	
 		while (null != (match = patternFinder.nextMatch())) {
 			var i1 = match[0].start; 
+			var i2 = match[0].finish;
 			var j1 = match[1].start; 
 			var j2 = match[1].finish;
-			var newGoal = this.notes[i1].ogGoalPos;
-			for (let j = j1; j <= j2; j++) {
-				this.notes[j].setGoalPos(newGoal);
-			}
-			console.log(this.seq.substring(match[0].start, match[0].finish+1)+ ": " + match[0].start.toString() +" to " +match[0].finish.toString() + " matched with " + match[1].start.toString() + " to " + match[1].finish.toString());
+			// [start_interval1x, start_int1y, end_int2x, end_int2y, end_int1x, end_int1y, start_int2x, start_int2y]
+			// , percentage];
+
+			this.num_arcs += 1;
+			
+			this.arcs.push(
+				this.notes[2*i1],this.notes[2*i1+1],
+				this.notes[2*j2], this.notes[2*j2+1], 
+				this.notes[2*i2], this.notes[2*i2+1],
+				this.notes[2*j1], this.notes[2*j1+1]);
+			
+			console.log(this.seq.substring(i1, i2+1)+ ": " + i1.toString() +" to " + i2.toString() + " matched with " + j1.toString() + " to " + j2.toString());
 		}
 	}
 
-	addNote(next, canvasH, canvasW) {
+	// updates the percentage of the arc drawn
+	updateArcs() {
+		for (var i=8; i < this.arcs.length; i+=9) {
+			this.arcs[i] = max(1.0, this.arcs[i] + 0.05);
+		}
+	}
+
+	addNote(next) {
 		this.seq = this.seq.concat(next);
-		var initY = random(canvasH);
-	
-		var goalX = max(random(3, 40), randomGaussian(0.35*canvasW, 0.15*canvasW));
-		var goalY = random(10, canvasH-10);
-		var col = 255; // lumens[0];
-		append(this.notes, new Note(10, col, canvasW, initY, goalX, goalY, next));
-		this.update();
+		this.num_notes += 1;
+		this.notes.push(0);
+		this.notes.push(0);
+		this.updateNotes();
+	}
+
+	findLocation(index) {
+		var x = this.s * index / this.num_notes;
+		return [x, this.baseH];
 	}
 	
 	clear() {
@@ -44,5 +86,17 @@ class Pattern {
 
 	getNotes() {
 		return this.notes;
+	}
+
+	getArcs() {
+		return this.arcs;
+	}
+
+	getNumNotes() {
+		return this.num_notes;
+	}
+
+	getNumArcs() {
+		return this.num_arcs;
 	}
 }

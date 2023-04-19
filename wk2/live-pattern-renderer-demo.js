@@ -20,7 +20,7 @@ var oscillator;
 const timer = ms => new Promise(res => setTimeout(res, ms))
 
 function setup() {
-  input = createInput();
+  input = createInput("Cn3Dn3En3Gn5Gn5Cn3Dn3En3Cn3Dn3En3Gn5Gn5Cn3Dn3En3");
   input.position(20, 65);
   manualButton = createButton('submit');
   manualButton.position(input.x + input.width, 65);

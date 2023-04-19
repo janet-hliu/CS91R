@@ -9,7 +9,7 @@ var manualButton;
 var liveButton;
 var audioContext;
 var oscillator;
-var NOTE_DURATION = 400;
+var NOTE_DURATION = 40;
 
 // returns a Promise that resolves after "ms" Milliseconds
 // used for playing manual sequences
@@ -116,9 +116,11 @@ function setup() {
 	myShader = createShader(vertShader, fragShader);
 	shader(myShader);
 	screen.background(backgroundCol)
+	console.log(width);
+	console.log(height);
 
 	// pattern rendering
-	pattern_tracker = new Pattern([], "");
+	pattern_tracker = new Pattern([], "", width, height);
 
 	// manual input
 	input = createInput('Cn3Dn3En3Gn5Gn5Cn3Dn3En3Cn3Dn3En3Gn5Gn5Cn3Dn3En3');
@@ -142,20 +144,20 @@ function setup() {
 }
 
 function draw() {
-	let shaderParticles = []
-	var numParticles = 0
-	pattern_tracker.getNotes().forEach(function(note) {
-		numParticles += 1;
-		note.update(0);
-		shaderParticles.push(note.curPos.x);
-		shaderParticles.push(note.curPos.y);
-	  })
-	console.log(shaderParticles);
-	console.log(numParticles);
-	
-	myShader.setUniform('numParticles', numParticles);
+	let shaderParticles = pattern_tracker.getNotes();
+	let arcs = pattern_tracker.getArcs();
+	// console.log(pattern_tracker.getNumArcs());
+	// console.log(arcs);
+	// console.log(shaderParticles);
+	// console.log(numParticles);
+
+	myShader.setUniform('numArcs', pattern_tracker.getNumArcs());
+	myShader.setUniform('numParticles', pattern_tracker.getNumNotes());
 	myShader.setUniform('particles', shaderParticles);
+	myShader.setUniform('arcs', arcs);
 	myShader.setUniform('texture', screen);
 	myShader.setUniform('time', 0.0005*millis());
-	rect(-width/2, -height/2, width, height);
+	rect(0, 0, width, height);
 }
+// add in brightness for notes
+// add in movement of notes?

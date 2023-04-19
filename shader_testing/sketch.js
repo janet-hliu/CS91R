@@ -1,7 +1,7 @@
 let screen;
 let myShader;
 
-let numParticles = 20;
+let numParticles = 2;
 let particles = [];
 let t = 0;
 
@@ -11,16 +11,16 @@ function setup() {
 	myShader = createShader(vertShader, fragShader);
 	shader(myShader)
 	
-	for (let i = 0; i < 20; ++i) {
-		// let p = new Particle(i*width/20, height*0.25, t)
-		let p = new Particle(random(width), height*0.25, t)
-		console.log(p.loc.x);
-    	particles.push(p)
-	}
-	// let p1 = new Particle(0, height*0.25, t);
-	// let p2 = new Particle(width, height*0.25, t);
-	// particles.push(p1);
-	// particles.push(p2);
+	// for (let i = 0; i < 20; ++i) {
+	// 	// let p = new Particle(i*width/20, height*0.25, t)
+	// 	let p = new Particle(random(width), height*0.25, t)
+	// 	console.log(p.loc.x);
+    // 	particles.push(p)
+	// }
+	let p1 = new Particle(0, height*0.25, t);
+	let p2 = new Particle(width, height*0.25, t);
+	particles.push(p1);
+	particles.push(p2);
 	screen.background('#141718')
 }
 

@@ -18,6 +18,7 @@ PatternRenderer.prototype.render = function(minPatternLength, hist, lastMatch, m
 	}
 
 	function scale(n) {
+		// console.log(masterScale);
 		return s * n / masterScale;
 	}
 

@@ -7,15 +7,11 @@ function colorDist(col1, col2) {
 }
 
 class Note {
-  constructor(pointWeight, col, initX, initY, goalX, goalY, val) {
+  constructor(pointWeight, initX, initY, goalX, goalY, val) {
     this.pointWeight = pointWeight;
-    this.pointCol = col;
-    this.ogPointCol = col;
     this.curPos = createVector(initX, initY);
     this.goalPos = createVector(goalX, goalY);
     this.ogGoalPos = this.goalPos;
-    this.hasRing = false;
-    this.ringCol = col;
     this.startTime = millis();
     this.val = val;
   }

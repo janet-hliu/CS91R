@@ -40,8 +40,8 @@ float sdArc(in vec2 p1, in vec2 p2, in vec2 p, in vec2 sc, in float ra, float rb
 }
 
 float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in float time) {
-	p1.xy = p1.xy*2.0 - 1.0;
-	p2.xy = p2.xy*2.0 - 1.0;
+	p1.xy = p1.xy - 1.0;
+	p2.xy = p2.xy - 1.0;
 	float radius = abs(p2.x - p1.x) / 2.0;
 	
 	float topOfArc = p1.y + radius;
@@ -79,12 +79,9 @@ uniform vec2 particles[maxParticles];
 uniform float time;
 
 void main() {
-
-	vec4 adjusted_glFragCoord = vec4((vec2(gl_FragCoord.x, resolution.y - gl_FragCoord.y) - 0.5), 0.0, 0.0);
-	
-  float tb = 3.14 / 2.0;
-  float rb = 0.00;
-  vec2  sc = vec2(sin(tb),cos(tb));
+//   float tb = 3.14 / 2.0;
+//   float rb = 0.00;
+//   vec2  sc = vec2(sin(tb),cos(tb));
     
   // distance
 	vec2 p1 = particles[0];
@@ -105,9 +102,9 @@ void main() {
 	vec2 speedSum = vec2(0.0);
 	
 	for (int i = 0 ; i < maxParticles; i++) {
-		if (i >= 20) {break;}
+		if (i >= numParticles) {break;}
 		vec2 p = particles[i];
-		p.xy = p.xy*2.0 - 1.0;
+		p.xy = p.xy - 1.0;
 		
 		float dist = distance(gl_FragCoord.xy,p);
 		brightness += maxBrightness/(dist*.001);
