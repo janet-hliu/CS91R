@@ -9,7 +9,7 @@ var manualButton;
 var liveButton;
 var audioContext;
 var oscillator;
-var NOTE_DURATION = 40;
+var NOTE_DURATION = 400;
 
 // returns a Promise that resolves after "ms" Milliseconds
 // used for playing manual sequences

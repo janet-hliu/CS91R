@@ -40,7 +40,7 @@ float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in float time) {
 	}
 	
 	vec2 arcPoint;
-	float aperture = min(M_PI , 0. + 2. * time);
+	float aperture = min(M_PI , 0. + 1. * time);
 	if (angle > aperture || angle < 0.) {
 		vec2 aperturePoint = vec2(origin.x + radius * cos(aperture), origin.y + radius * sin(aperture));
 		if (distance(fragCoords, aperturePoint) > distance(fragCoords, max(p1, p2))) {
@@ -54,31 +54,23 @@ float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in float time) {
 	return distance(fragCoords, arcPoint) + 2.;
 }
 
-const int maxParticles = 500;
+const int maxParticles = 800;
+const int maxArcs = 100;
 varying vec2 vTexCoord;
 uniform sampler2D texture;
 uniform int numParticles;
 uniform int numArcs;
 uniform vec2 particles[maxParticles];
-uniform vec4 arcs[maxParticles];
+uniform vec4 arcs[maxArcs];
+uniform float arcProgress[maxArcs/2];
 uniform float time;
 
 void main() {
-    
-  // distance
-	// vec2 p1 = particles[0];
-	// vec2 p2 = particles[1];
-	
-	// float arcDist = myArc(gl_FragCoord.xy, p1, p2, time);
-	// arcDist = clamp(arcDist, 0., 2000.);
-	// arcBrightness += maxArcBr/(arcDist*.001);
-  	// vec4 col = vec4(arcBrightness*0., arcBrightness*0.5, arcBrightness*1., 0.0);
-
 	// arcs
 	float arcBrightness = 0.0;
 	float fl_numa = float(numArcs*2);
 	float maxArcBr = 0.01 / (0.1*fl_numa + 1.);
-	for (int i = 0; i < maxParticles; i++) {
+	for (int i = 0; i < maxArcs; i++) {
 		if (i >= numArcs * 2) {break;}
 		vec4 p = arcs[i];
 		vec2 p1 = p.xy;
@@ -90,6 +82,7 @@ void main() {
 	vec4 arcModCol = vec4(arcBrightness*0., arcBrightness*0.5, arcBrightness*1., 0.0);
 
 	// particles
+	// if (gl_FragCoord.y - ) {}
 	vec4 partModCol = vec4(0.0,0.0,0.0,1.0);
 	float brightness = 0.0;
 	float fl_nump = float(numParticles);
