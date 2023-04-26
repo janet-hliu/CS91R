@@ -109,7 +109,7 @@ uniform int numArcs;
 uniform vec2 particles[maxParticles];
 uniform vec4 arcs[maxArcs * 2];
 uniform float arcProgress[maxArcs];
-uniform float time;
+uniform int y_height;
 
 void main() {
 	// arcs

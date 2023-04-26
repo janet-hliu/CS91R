@@ -108,10 +108,12 @@ class Pattern {
 	}
 
 	getNotes() {	
-		if (this.actual_scale < this.num_notes) {
+		if (this.actual_scale < (this.num_notes - 0.1)) {
 			this.actual_scale = lerp(this.actual_scale, this.num_notes, 0.5);
-			this.updateNotes();
+		} else if (this.num_notes > 0) {
+			this.actual_scale += 0.05;
 		}
+		this.updateNotes();
 		return this.notes;
 	}
 
@@ -140,5 +142,9 @@ class Pattern {
 
 	getNumArcs() {
 		return this.num_arcs;
+	}
+
+	getBaseHeight() {
+		return this.baseH;
 	}
 }

@@ -122,6 +122,9 @@ function setup() {
 	// pattern rendering
 	pattern_tracker = new Pattern([], "", width, height);
 
+	myShader.setUniform('texture', screen);
+	myShader.setUniform('y_height', pattern_tracker.getBaseHeight());
+
 	// manual input
 	input = createInput('Cn3Dn3En3Gn5Cn3Dn3En3');
 	input.position(20, 65);
@@ -161,8 +164,6 @@ function draw() {
 	myShader.setUniform('particles', shaderParticles);
 	myShader.setUniform('arcs', arcs);
 	myShader.setUniform('arcProgress', progress);
-	myShader.setUniform('texture', screen);
-	myShader.setUniform('time', 0.0005*millis());
 	rect(0, 0, width, height);
 }
 // add in brightness for notes
