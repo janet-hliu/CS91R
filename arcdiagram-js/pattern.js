@@ -6,6 +6,7 @@ class Pattern {
 		this.notes = notes;
 		// ["start_int1_index,end_int1_index,start_int2_index,end_int2_index": progress];
 		this.arcs = {};
+		// indices of particles to be bright
 
 		this.num_notes = sequence.length;
 		this.num_arcs = 0;
@@ -52,19 +53,25 @@ class Pattern {
 			var i2 = match[0].finish;
 			var j1 = match[1].start; 
 			var j2 = match[1].finish;
-			let key = str(i1) + "," + str(i2) + "," + str(j1) + "," + str(j2)
+			let key = str(i1) + "," + str(i2) + "," + str(j1) + "," + str(j2);
 
 			if (key in old_arcs) {
 				this.arcs[key] = min(old_arcs[key] + 0.02, 1.0);
 			} else if (typeof this.lastMatch !== 'undefined' && 
 					match[0].start == this.lastMatch[0].start && 
 					match[1].start == this.lastMatch[1].start) { // if both start intervals are the same
+				console.log(newLastMatch);
+				console.log(this.lastMatch);
 				var li1 = this.lastMatch[0].start; 
 				var li2 = this.lastMatch[0].finish;
 				var lj1 = this.lastMatch[1].start; 
 				var lj2 = this.lastMatch[1].finish;
 				let last_key = str(li1) + "," + str(li2) + "," + str(lj1) + "," + str(lj2);
-				this.arc[key] = min(old_arcs[last_key] + 0.02, 1.0);
+				console.log(last_key);
+				console.log(key);
+				console.log(old_arcs[last_key]);
+				// console.log(this.arc);
+				this.arcs[key] = min(old_arcs[last_key] + 0.02, 1.0);
 			} else {
 				this.arcs[key] = 0.0;
 			}
