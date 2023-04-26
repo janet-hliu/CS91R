@@ -4,7 +4,7 @@ class Pattern {
 		// index i's x location is at: 2*x
 		// index i's y location is at: 2x+1
 		this.notes = notes;
-		// [start_interval1x, start_int1y, end_int1x, end_int1y, start_int2x, start_int2y, end_int2x, end_int2y, brightness, percentage];
+		// ["start_interval1x,start_int1y,end_int1x,end_int1y,start_int2x,start_int2y,end_int2x,end_int2y": progress];
 		this.arcs = [];
 
 		this.num_notes = sequence.length;
@@ -19,6 +19,7 @@ class Pattern {
 		this.height = height;
 		this.minPatternLength = 2;
 		this.s = Math.min(width, 2 * height);
+		this.actual_scale = 1;
 		// y position for the render
 		this.baseH = this.height * 0.25;
 	}
@@ -31,6 +32,7 @@ class Pattern {
 			this.notes[2*i+1]= y;
 		}
 		var patternFinder = new PatternFinder(this.seq, this.minPatternLength);
+		old_arcs = this.arcs;
 		this.arcs = [];
 		this.num_arcs = 0;
 	
@@ -70,7 +72,7 @@ class Pattern {
 	}
 
 	findLocation(index) {
-		var x = this.s * index / this.num_notes;
+		var x = this.s * index / this.actual_scale;
 		return [x, this.baseH];
 	}
 	
@@ -84,10 +86,15 @@ class Pattern {
 	}
 
 	getNotes() {
+		if (this.actual_scale < this.num_notes) {
+			this.actual_scale = lerp(this.actual_scale, this.num_notes, 0.5);
+			this.updateNotes();
+		}
 		return this.notes;
 	}
 
 	getArcs() {
+		this.updateArcs();
 		return this.arcs;
 	}
 

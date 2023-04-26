@@ -5,11 +5,12 @@ let backgroundCol = "#001524";
 var pattern_tracker;
 
 var input;
+var live_sequence = "";
 var manualButton;
 var liveButton;
 var audioContext;
 var oscillator;
-var NOTE_DURATION = 40;
+var NOTE_DURATION = 100;
 
 // returns a Promise that resolves after "ms" Milliseconds
 // used for playing manual sequences
@@ -39,24 +40,26 @@ function onEnabled() {
 	WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name));
   
 	// Display available MIDI input devices
-	if (WebMidi.inputs.length < 1) {
-		document.body.innerHTML+= "No device detected.";
-	} else {
-		WebMidi.inputs.forEach((device, index) => {
-			document.body.innerHTML+= `${index}: ${device.name} <br>`;
-		});
-	}
+	// if (WebMidi.inputs.length < 1) {
+	// 	document.body.innerHTML+= "No device detected.";
+	// } else {
+	// 	WebMidi.inputs.forEach((device, index) => {
+	// 		document.body.innerHTML+= `${index}: ${device.name} <br>`;
+	// 	});
+	// }
   
 	// jeff's piano shows all info coming from channel 16: display e.message.channel
 	const mySynth = WebMidi.inputs[0].channels[16];
   
 	mySynth.addListener("noteon", e => {
 		// e.note.number is a number from 0 - 127, representing full MIDI range
-		var ascii_rep = String.fromCharCode(e.note.number)
+		// add 32 to avoid the unprintable ascii characters
+		var ascii_rep = String.fromCharCode(e.note.number + 32);
 
 		pattern_tracker.addNote(ascii_rep, width, height);
 		live_sequence = live_sequence.concat(e.note.identifier);
-		document.getElementById("live_sequence").innerHTML = live_sequence;
+		// document.getElementById("live_sequence").innerHTML = live_sequence;
+		console.log(pattern_tracker.getSeq());
 	})
 }
 
@@ -138,6 +141,8 @@ function setup() {
 		.enable()
 		.then(onEnabled)
 		.catch(err => alert(err));
+		pattern_tracker.clear();
+		live_sequence = "";
 	})
 
 	renderMidiTracks();
@@ -146,10 +151,12 @@ function setup() {
 function draw() {
 	let shaderParticles = pattern_tracker.getNotes();
 	let arcs = pattern_tracker.getArcs();
+	// console.log("new draw");
+	// console.log(live_sequence);
 	// console.log(pattern_tracker.getNumArcs());
 	// console.log(arcs);
 	// console.log(shaderParticles);
-	// console.log(numParticles);
+	// console.log(pattern_tracker.getNumNotes());
 
 	myShader.setUniform('numArcs', pattern_tracker.getNumArcs());
 	myShader.setUniform('numParticles', pattern_tracker.getNumNotes());
