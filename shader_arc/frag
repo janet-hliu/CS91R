@@ -112,14 +112,17 @@ void main() {
 	float arcBrightness = 0.0;
 	float fl_numa = float(numArcs*2);
 	float maxArcBr = 0.01 / (0.1*fl_numa + 1.);
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < maxArcs; i += 2) {
 		if (i >= numArcs * 2) {break;}
-		vec2 p1 = arcs[i].xy;
-		vec2 p2 = arcs[i].zw;
-		vec2 p3 = arcs[i + 1].xy;
-		vec2 p4 = arcs[i + 1].zw;
 
-		float arcDist = myArc(gl_FragCoord.xy, p1, p3, p4, p2, time);
+		vec4 outer_arc = arcs[i];
+		vec4 inner_arc = arcs[i+1];
+		vec2 start_int1 = outer_arc.xy;
+		vec2 end_int2 = outer_arc.zw;
+		vec2 end_int1 = inner_arc.xy;
+		vec2 start_int2 = inner_arc.zw;
+
+		float arcDist = myArc(gl_FragCoord.xy, start_int1, end_int1, start_int2, end_int2, time);
 		arcDist = clamp(arcDist, 0., 2000.);
 		arcBrightness += maxArcBr/(arcDist*.001);
 	}
