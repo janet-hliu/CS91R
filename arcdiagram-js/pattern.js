@@ -59,8 +59,12 @@ class Pattern {
 			} else if (typeof this.lastMatch !== 'undefined' && 
 					match[0].start == this.lastMatch[0].start && 
 					match[1].start == this.lastMatch[1].start) { // if both start intervals are the same
-				this.arc[key] = min(old_arcs[key] + 0.02, 1.0);
-				hist[this.lastMatch] + 2;
+				var li1 = this.lastMatch[0].start; 
+				var li2 = this.lastMatch[0].finish;
+				var lj1 = this.lastMatch[1].start; 
+				var lj2 = this.lastMatch[1].finish;
+				let last_key = str(li1) + "," + str(li2) + "," + str(lj1) + "," + str(lj2);
+				this.arc[key] = min(old_arcs[last_key] + 0.02, 1.0);
 			} else {
 				this.arcs[key] = 0.0;
 			}
@@ -69,6 +73,7 @@ class Pattern {
 			
 			// console.log(this.seq.substring(i1, i2+1)+ ": " + i1.toString() +" to " + i2.toString() + " matched with " + j1.toString() + " to " + j2.toString());
 		}
+		this.lastMatch = newLastMatch;
 	}
 
 	// updates the percentage of the arc drawn
