@@ -17,7 +17,7 @@ class Pattern {
 		// console.log(height) // 1016
 		this.width = width;
 		this.height = height;
-		this.minPatternLength = 5;
+		this.minPatternLength = 2;
 		this.s = Math.min(width, 2 * height);
 		// y position for the render
 		this.baseH = this.height * 0.25;
@@ -31,7 +31,7 @@ class Pattern {
 			this.notes[2*i+1]= y;
 		}
 		var patternFinder = new PatternFinder(this.seq, this.minPatternLength);
-		console.log(this.seq);
+		//console.log(this.seq);
 		this.arcs = [];
 		this.num_arcs = 0;
 	
@@ -51,7 +51,7 @@ class Pattern {
 				this.notes[2*i2], this.notes[2*i2+1],
 				this.notes[2*j1], this.notes[2*j1+1]);
 			
-			console.log(this.seq.substring(i1, i2+1)+ ": " + i1.toString() +" to " + i2.toString() + " matched with " + j1.toString() + " to " + j2.toString());
+			//console.log(this.seq.substring(i1, i2+1)+ ": " + i1.toString() +" to " + i2.toString() + " matched with " + j1.toString() + " to " + j2.toString());
 		}
 	}
 

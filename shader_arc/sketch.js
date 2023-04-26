@@ -9,7 +9,7 @@ var manualButton;
 var liveButton;
 var audioContext;
 var oscillator;
-var NOTE_DURATION = 400;
+var NOTE_DURATION = 40;
 
 // returns a Promise that resolves after "ms" Milliseconds
 // used for playing manual sequences
@@ -116,14 +116,14 @@ function setup() {
 	myShader = createShader(vertShader, fragShader);
 	shader(myShader);
 	screen.background(backgroundCol)
-	console.log(width);
-	console.log(height);
+	//console.log(width);
+	//console.log(height);
 
 	// pattern rendering
 	pattern_tracker = new Pattern([], "", width, height);
 
 	// manual input
-	input = createInput('Cn3Dn3En3Gn5Gn5Cn3Dn3En3Cn3Dn3En3Gn5Gn5Cn3Dn3En3');
+	input = createInput('Cn3Dn3En3Gn5Cn3Dn3En3');
 	input.position(20, 65);
 	manualButton = createButton('submit');
 	manualButton.position(input.x + input.width, 65);
@@ -147,7 +147,7 @@ function draw() {
 	let shaderParticles = pattern_tracker.getNotes();
 	let arcs = pattern_tracker.getArcs();
 	// console.log(pattern_tracker.getNumArcs());
-	// console.log(arcs);
+	console.log(arcs);
 	// console.log(shaderParticles);
 	// console.log(numParticles);
 
