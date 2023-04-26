@@ -100,8 +100,8 @@ float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in vec2 p3, in vec2 p4, 
 	return minDist;
 }
 
-const int maxParticles = 800;
-const int maxArcs = 70;
+const int maxParticles = 400;
+const int maxArcs = 200;
 varying vec2 vTexCoord;
 uniform sampler2D texture;
 uniform int numParticles;
