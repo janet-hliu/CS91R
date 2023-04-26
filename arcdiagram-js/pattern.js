@@ -60,17 +60,11 @@ class Pattern {
 			} else if (typeof this.lastMatch !== 'undefined' && 
 					match[0].start == this.lastMatch[0].start && 
 					match[1].start == this.lastMatch[1].start) { // if both start intervals are the same
-				console.log(newLastMatch);
-				console.log(this.lastMatch);
 				var li1 = this.lastMatch[0].start; 
 				var li2 = this.lastMatch[0].finish;
 				var lj1 = this.lastMatch[1].start; 
 				var lj2 = this.lastMatch[1].finish;
 				let last_key = str(li1) + "," + str(li2) + "," + str(lj1) + "," + str(lj2);
-				console.log(last_key);
-				console.log(key);
-				console.log(old_arcs[last_key]);
-				// console.log(this.arc);
 				this.arcs[key] = min(old_arcs[last_key] + 0.02, 1.0);
 			} else {
 				this.arcs[key] = 0.0;
