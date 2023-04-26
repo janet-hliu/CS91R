@@ -147,7 +147,7 @@ function draw() {
 	let shaderParticles = pattern_tracker.getNotes();
 	let arcs = pattern_tracker.getArcs();
 	// console.log(pattern_tracker.getNumArcs());
-	console.log(arcs);
+	// console.log(arcs);
 	// console.log(shaderParticles);
 	// console.log(numParticles);
 

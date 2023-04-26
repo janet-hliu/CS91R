@@ -31,7 +31,6 @@ class Pattern {
 			this.notes[2*i+1]= y;
 		}
 		var patternFinder = new PatternFinder(this.seq, this.minPatternLength);
-		//console.log(this.seq);
 		this.arcs = [];
 		this.num_arcs = 0;
 	
