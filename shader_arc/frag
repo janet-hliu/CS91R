@@ -50,7 +50,7 @@ vec2 getArcPoint(in vec2 fragCoords, in float angle, in float aperture, in float
 // p2: end_int1
 // p3: start_int2
 // p4: end_int2
-float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in vec2 p3, in vec2 p4, in float time) {
+float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in vec2 p3, in vec2 p4, in float progress) {
 
 	//coordinate correction??
 	// p1.xy = p1.xy*2.0 - 1.0;
@@ -73,7 +73,7 @@ float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in vec2 p3, in vec2 p4, 
 		angle = atan(fragCoords.y - origin.y, fragCoords.x - origin.x);
 	}
 	
-	float aperture = min(M_PI , max(0., 1.*time - 1.));
+	float aperture = M_PI * progress; // min(M_PI , max(0., 100.*progress - 1.));
 	vec2 arcPoint1 = getArcPoint(fragCoords, angle, aperture, rad1, p1, p4, origin);
 	vec2 arcPoint2 = getArcPoint(fragCoords, angle, aperture, rad2, p2, p3, origin);
 
@@ -101,14 +101,14 @@ float myArc(in vec2 fragCoords, in vec2 p1, in vec2 p2, in vec2 p3, in vec2 p4, 
 }
 
 const int maxParticles = 800;
-const int maxArcs = 100;
+const int maxArcs = 70;
 varying vec2 vTexCoord;
 uniform sampler2D texture;
 uniform int numParticles;
 uniform int numArcs;
 uniform vec2 particles[maxParticles];
-uniform vec4 arcs[maxArcs];
-uniform float arcProgress[maxArcs/2];
+uniform vec4 arcs[maxArcs * 2];
+uniform float arcProgress[maxArcs];
 uniform float time;
 
 void main() {
@@ -124,8 +124,9 @@ void main() {
 		vec2 end_int2 = outer_arc.zw;
 		vec2 end_int1 = inner_arc.xy;
 		vec2 start_int2 = inner_arc.zw;
+		float arc_progress = arcProgress[i/2];
 
-		float arcDist = myArc(gl_FragCoord.xy, start_int1, end_int1, start_int2, end_int2, time);
+		float arcDist = myArc(gl_FragCoord.xy, start_int1, end_int1, start_int2, end_int2, arc_progress);
 		arcDist = clamp(arcDist, 0., 2000.);
 		arcBrightness += maxArcBr/(arcDist*.001);
 	}

@@ -59,7 +59,6 @@ function onEnabled() {
 		pattern_tracker.addNote(ascii_rep, width, height);
 		live_sequence = live_sequence.concat(e.note.identifier);
 		// document.getElementById("live_sequence").innerHTML = live_sequence;
-		console.log(pattern_tracker.getSeq());
 	})
 }
 
@@ -119,8 +118,6 @@ function setup() {
 	myShader = createShader(vertShader, fragShader);
 	shader(myShader);
 	screen.background(backgroundCol)
-	//console.log(width);
-	//console.log(height);
 
 	// pattern rendering
 	pattern_tracker = new Pattern([], "", width, height);
@@ -150,8 +147,9 @@ function setup() {
 
 function draw() {
 	let shaderParticles = pattern_tracker.getNotes();
-	let arcs = pattern_tracker.getArcs();
+	let [arcs, progress] = pattern_tracker.getArcs();
 	// console.log("new draw");
+	// console.log(progress);
 	// console.log(live_sequence);
 	// console.log(pattern_tracker.getNumArcs());
 	// console.log(arcs);
@@ -162,6 +160,7 @@ function draw() {
 	myShader.setUniform('numParticles', pattern_tracker.getNumNotes());
 	myShader.setUniform('particles', shaderParticles);
 	myShader.setUniform('arcs', arcs);
+	myShader.setUniform('arcProgress', progress);
 	myShader.setUniform('texture', screen);
 	myShader.setUniform('time', 0.0005*millis());
 	rect(0, 0, width, height);
