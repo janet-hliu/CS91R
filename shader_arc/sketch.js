@@ -22,8 +22,6 @@ var first_note = true;
 // used for playing manual sequences
 const timer = ms => new Promise(res => setTimeout(res, ms))
 
-// let numParticles = 20;
-// let particles = [];
 
 // gets or creates an audio context
 function getOrCreateContext() {
@@ -55,7 +53,8 @@ function onEnabled() {
 	// }
   
 	// jeff's piano shows all info coming from channel 16: display e.message.channel
-	const mySynth = WebMidi.inputs[0].channels[16];
+	const mySynth = WebMidi.inputs[0].channels[1];
+	// console.log(WebMidi.inputs[0]);
   
 	mySynth.addListener("noteon", e => {
 		// e.note.number is a number from 0 - 127, representing full MIDI range
@@ -63,10 +62,9 @@ function onEnabled() {
 		// var ascii_rep = String.fromCharCode(e.note.number + 32);
 		if (first_note) {
 			first_note = false;
-			START_TIME = Date.now();
+			START_TIME = Date.now() - e.timestamp;
 		}
 
-		console.log(e);
 		// if new note N is within CHORD_LEEWAY milliseconds from previous note, consider them part of the same chord
 		// add N to chord handler set, but do not add to pattern tracker
 		if ((e.timestamp - last_timestamp) < CHORD_LEEWAY) {
