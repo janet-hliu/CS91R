@@ -12,6 +12,12 @@ var audioContext;
 var oscillator;
 var NOTE_DURATION = 100;
 
+var chord_handler = new Set();
+var last_timestamp = 0.0;
+const CHORD_LEEWAY = 15;
+var START_TIME = 0.0;
+var first_note = true;
+
 // returns a Promise that resolves after "ms" Milliseconds
 // used for playing manual sequences
 const timer = ms => new Promise(res => setTimeout(res, ms))
@@ -54,10 +60,37 @@ function onEnabled() {
 	mySynth.addListener("noteon", e => {
 		// e.note.number is a number from 0 - 127, representing full MIDI range
 		// add 32 to avoid the unprintable ascii characters
-		var ascii_rep = String.fromCharCode(e.note.number + 32);
+		// var ascii_rep = String.fromCharCode(e.note.number + 32);
+		if (first_note) {
+			first_note = false;
+			START_TIME = Date.now();
+		}
 
-		pattern_tracker.addNote(ascii_rep, width, height);
-		live_sequence = live_sequence.concat(e.note.identifier);
+		console.log(e);
+		// if new note N is within CHORD_LEEWAY milliseconds from previous note, consider them part of the same chord
+		// add N to chord handler set, but do not add to pattern tracker
+		if ((e.timestamp - last_timestamp) < CHORD_LEEWAY) {
+			// console.log(last_timestamp);
+			chord_handler.add(e.note.number);
+			// console.log("in if");
+			// console.log(chord_handler);
+		} else {
+			// chords exist:
+			// find highest note in chord, add that to pattern tracker
+			if (chord_handler.size != 0) {
+				var highest_note = Math.max.apply(Math, [...chord_handler]);
+				var highest_ascii_rep = String.fromCharCode(highest_note + 32);
+				pattern_tracker.addNote(highest_ascii_rep, width, height);
+				chord_handler.clear();
+			}
+			// leeway passed, adding note that is no longer part of chord
+			// it will get processed upon the next note
+			if (chord_handler.size == 0) {
+				chord_handler.add(e.note.number);
+			}
+		}
+
+		last_timestamp = e.timestamp;
 		// document.getElementById("live_sequence").innerHTML = live_sequence;
 	})
 }
@@ -126,38 +159,42 @@ function setup() {
 	myShader.setUniform('y_height', pattern_tracker.getBaseHeight());
 
 	// manual input
-	input = createInput('Cn3Dn3En3Gn5Cn3Dn3En3');
-	input.position(20, 65);
-	manualButton = createButton('submit');
-	manualButton.position(input.x + input.width, 65);
-	manualButton.mousePressed(updateSeq);
+	// input = createInput('Cn3Dn3En3Gn5Cn3Dn3En3');
+	// input.position(20, 65);
+	// manualButton = createButton('submit');
+	// manualButton.position(input.x + input.width, 65);
+	// manualButton.mousePressed(updateSeq);
 
 	// live input
-	liveButton = createButton('live');
-	liveButton.position(manualButton.x  + manualButton.width, 65);
-	// setup to enable WebMidi library: https://webmidijs.org/docs/
-	liveButton.mousePressed(function() {
-		WebMidi
+	// liveButton = createButton('live');
+	// liveButton.position(manualButton.x  + manualButton.width, 65);
+	WebMidi
 		.enable()
 		.then(onEnabled)
 		.catch(err => alert(err));
-		pattern_tracker.clear();
-		live_sequence = "";
-	})
+	// setup to enable WebMidi library: https://webmidijs.org/docs/
+	// liveButton.mousePressed(function() {
+	// 	WebMidi
+	// 	.enable()
+	// 	.then(onEnabled)
+	// 	.catch(err => alert(err));
+	// 	pattern_tracker.clear();
+	// 	live_sequence = "";
+	// })
 
-	renderMidiTracks();
+	// renderMidiTracks();
 }
 
 function draw() {
+	if (chord_handler.size != 0 && ((Date.now() - START_TIME) - last_timestamp) >= CHORD_LEEWAY) {
+		var highest_note = Math.max.apply(Math, [...chord_handler]);
+		var highest_ascii_rep = String.fromCharCode(highest_note + 32);
+		pattern_tracker.addNote(highest_ascii_rep, width, height);
+		chord_handler.clear();
+	}
+
 	let shaderParticles = pattern_tracker.getNotes();
 	let [arcs, progress] = pattern_tracker.getArcs();
-	// console.log("new draw");
-	// console.log(progress);
-	// console.log(live_sequence);
-	// console.log(pattern_tracker.getNumArcs());
-	// console.log(arcs);
-	// console.log(shaderParticles);
-	// console.log(pattern_tracker.getNumNotes());
 
 	myShader.setUniform('numArcs', pattern_tracker.getNumArcs());
 	myShader.setUniform('numParticles', pattern_tracker.getNumNotes());
@@ -166,5 +203,3 @@ function draw() {
 	myShader.setUniform('arcProgress', progress);
 	rect(0, 0, width, height);
 }
-// add in brightness for notes
-// add in movement of notes?

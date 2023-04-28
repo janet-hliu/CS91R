@@ -16,7 +16,7 @@ class Pattern {
 		// canvas width + height
 		this.width = width;
 		this.height = height;
-		this.minPatternLength = 2;
+		this.minPatternLength = 5; //2;
 		this.s = Math.min(width, 2 * height);
 		this.actual_scale = 1;
 		// y position for the render
@@ -111,7 +111,7 @@ class Pattern {
 		if (this.actual_scale < (this.num_notes - 0.1)) {
 			this.actual_scale = lerp(this.actual_scale, this.num_notes, 0.5);
 		} else if (this.num_notes > 0) {
-			this.actual_scale += 0.05;
+			this.actual_scale += 0.01;
 		}
 		this.updateNotes();
 		return this.notes;
